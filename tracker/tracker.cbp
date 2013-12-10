@@ -32,6 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="SocketUDP.cpp" />
+		<Unit filename="SocketUDP.hpp" />
+		<Unit filename="SocketUDPUtils.cpp" />
+		<Unit filename="SocketUDPUtils.hpp" />
 		<Unit filename="file.cpp" />
 		<Unit filename="file.hpp" />
 		<Unit filename="knowledgeBase.cpp" />

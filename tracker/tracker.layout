@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="SocketUDP.cpp" open="1" top="1" tabpos="4">
+		<Cursor position="4373" topLine="139" />
+	</File>
+	<File name="SocketUDP.hpp" open="1" top="0" tabpos="7">
+		<Cursor position="564" topLine="0" />
+	</File>
+	<File name="SocketUDPUtils.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="229" topLine="0" />
+	</File>
+	<File name="SocketUDPUtils.hpp" open="1" top="0" tabpos="8">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="file.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="740" topLine="0" />
+	</File>
+	<File name="file.hpp" open="1" top="0" tabpos="6">
+		<Cursor position="76" topLine="0" />
+	</File>
+	<File name="knowledgeBase.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="225" topLine="0" />
+	</File>
+	<File name="knowledgeBase.hpp" open="1" top="0" tabpos="5">
+		<Cursor position="1054" topLine="0" />
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="121" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
