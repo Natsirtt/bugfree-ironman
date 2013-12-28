@@ -10,12 +10,10 @@ class SocketUDP
         /**
         * Créé une socket attachée
         */
-        SocketUDP(const char* adresse, int port);
-        ~SocketUDP();
-
+        SocketUDP(std::string adresse, int port);
 
         std::string getLocalName();
-        std::string getLocalIP();
+        std::string getLocalIp();
         int getLocalPort();
         int write(const std::string adresse, int port, char* buffer, int length);
 		/**
@@ -28,15 +26,18 @@ class SocketUDP
 
 	protected:
 
-	private:
-        struct id {
+    private:
+        struct Id {
             std::string name;
             std::string ip;
             int port;
         };
+        int initSockAddr(std::string adresse, int port, struct sockaddr_in* in);
+        Id getIdBySockAddr(const struct sockaddr_in* in);
+        int getPortByAddr(const struct sockaddr_in* in);
 
-        int socket;
-        id local;
+        int mSocket;
+        Id mLocal;
 };
 
 #endif
