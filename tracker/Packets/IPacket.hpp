@@ -20,6 +20,12 @@ class IPacket {
          * Renvoie le paquet sous la forme d'un tableau de char dans le format réseau.
          */
         virtual char* toData() = 0;
+
+        /**
+         * Execute la commande associée à ce paquet.
+         * @param adresse L'adresse de la personne ayant envoyé ce paquet.
+         */
+         virtual void exec(std::string adresse) = 0;
 };
 
 #endif // IPACKET_HPP

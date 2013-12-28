@@ -6,42 +6,59 @@
  #include "Operation.hpp"
  #include "NetworkTranslator.hpp"
  #include "OperationQueue.hpp"
+ #include "Thread.hpp"
 
 using namespace std;
+
+// Le nombre de threads de traitement qu'on utilise
+#define THREAD_NUMBER 5
 
 #define TRACKER_PORT 98765
 
 int main() {
 
-    // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
-    OperationQueue::get();
+    try {
 
-    // On genere les threads qui traiteront les operations
+        // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
+        OperationQueue::get();
 
+        // On genere les threads qui traiteront les operations
+        std::vector<Thread> threads;
+        for (int i = 0; i < THREAD_NUMBER; ++i) {
+            threads.push_back(Thread());
+        }
 
-    // On construit la socket principale de reception de packets
-    SocketUDP mainSocket("", TRACKER_PORT);
+        // On construit la socket principale de reception de packets
+        SocketUDP mainSocket("", TRACKER_PORT);
 
-    NetworkTranslator nt(&mainSocket);
+        NetworkTranslator nt(&mainSocket);
 
-    while (1) { // TODO Faire une condition d'arret propre
-        IPacket* packet = NULL;
-        std::string adresse;
-        int port = -1;
+        while (1) { // TODO Faire une condition d'arret propre
+            IPacket* packet = NULL;
+            std::string adresse;
+            int port = -1;
 
-        // On récupére un packet à partir de la socket
-        packet = nt.readPacket(adresse, &port, 0);
+            // On récupére un paquet à partir de la socket
+            packet = nt.readPacket(adresse, &port, 0);
 
-        // On construit une opération
-        Operation op(packet, adresse, port);
+            // On construit une opération
+            Operation op(packet, adresse, port);
 
-        // On ajoute l'opération à la file des opérations
-        OperationQueue::get().addOperation(op);
+            // On ajoute l'opération à la file des opérations
+            OperationQueue::get().addOperation(op);
 
+        }
+
+        // On nettoie toutes les données
+        mainSocket.close();
+        for (unsigned int i = 0; i < threads.size(); ++i) {
+            threads[i].join();
+        }
+        OperationQueue::get().clear();
+
+    } catch(std::exception& e) {
+        std::cerr << "Une erreur est survenue : " << e.what() << std::endl;
     }
-
-    // On nettoie toutes les données
-    mainSocket.close();
 
     return 0;
 }

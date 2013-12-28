@@ -18,10 +18,23 @@ Operation OperationQueue::getNextOperation() {
 }
 
 void OperationQueue::addOperation(Operation op) {
-
     pthread_mutex_lock(&mModifyMutex);
     mQueue.push(op);
 
     pthread_mutex_unlock(&mReadSem);
+    pthread_mutex_unlock(&mModifyMutex);
+}
+
+
+void OperationQueue::clear() {
+    pthread_mutex_lock(&mModifyMutex);
+
+    while (!mQueue.empty()) {
+        Operation op = mQueue.front();
+        delete op.getPacket();
+        mQueue.pop();
+    }
+
+    pthread_mutex_lock(&mReadSem);
     pthread_mutex_unlock(&mModifyMutex);
 }
