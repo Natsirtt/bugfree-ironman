@@ -5,12 +5,16 @@
  #include "SocketUDP.hpp"
  #include "Operation.hpp"
  #include "NetworkTranslator.hpp"
+ #include "OperationQueue.hpp"
 
 using namespace std;
 
 #define TRACKER_PORT 98765
 
 int main() {
+
+    // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
+    OperationQueue::get();
 
     // On genere les threads qui traiteront les operations
 
@@ -32,6 +36,7 @@ int main() {
         Operation op(packet, adresse, port);
 
         // On ajoute l'opération à la file des opérations
+        OperationQueue::get().addOperation(op);
 
     }
 
