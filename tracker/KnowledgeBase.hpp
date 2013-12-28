@@ -6,7 +6,7 @@
 #include <string>
 #include <set>
 
-#include "file.hpp"
+#include "File.hpp"
 
 class KnowledgeBase {
 

@@ -16,9 +16,7 @@ class SocketUDP
         std::string getLocalIp();
         int getLocalPort();
         int write(const std::string adresse, int port, char* buffer, int length);
-		/**
-        * 'adresse' doit etre initialisé et contenir 15 octets.
-        */
+
         int read(char* buffer, int length,
 						std::string& adresse, int* port, int timeout);
 
