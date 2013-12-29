@@ -27,7 +27,7 @@ class OperationQueue {
 
         std::queue<Operation> mQueue;
         // Mutex permettant de savoir si on peut lire dans la file
-        pthread_mutex_t mReadSem; // TODO ettre un semaphore au leu d'un mutex
+        int mReadSem;
         // Mutex permettant de savoir si on peut mofier la file
         pthread_mutex_t mModifyMutex;
 };

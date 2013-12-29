@@ -1,10 +1,12 @@
 #ifndef IPACKET_HPP
 #define IPACKET_HPP
 
+#include <string>
+
 class IPacket {
 
     public:
-        virtual ~IPacket() = 0;
+        virtual ~IPacket() {};
 
         /**
          * Renvoie l'opcode du packet.
@@ -12,12 +14,13 @@ class IPacket {
         virtual int getOpcode() = 0;
 
         /**
-         * Renvoie la tailel du paquet.
+         * Renvoie la taille du paquet.
          */
         virtual int getSize() = 0;
 
         /**
          * Renvoie le paquet sous la forme d'un tableau de char dans le format réseau.
+         * Note : Les 4 premiers octets sont un entier représentant un opcode.
          */
         virtual char* toData() = 0;
 
