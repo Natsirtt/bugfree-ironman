@@ -3,6 +3,7 @@
 #include "Packets/RRQPacket.hpp"
 #include "Packets/WRQPacket.hpp"
 #include "Packets/DataPacket.hpp"
+#include "Packets/ACKPacket.hpp"
 
 NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 
@@ -28,6 +29,8 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
         packet = new WRQPacket(data, sizeRead);
     case DATA:
         packet = new DataPacket(data, sizeRead);
+    case ACK:
+        packet = new ACKPacket(data, sizeRead);
     }
 
     return packet;
