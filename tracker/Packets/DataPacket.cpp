@@ -7,13 +7,16 @@
 
 DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData)
                         : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize), mBlockData(blockData) {
+    if (blockSize > MAX_DATA_SIZE) {
+        throw std::runtime_error("Erreur lors de la creation d'un paquet DATA : Taille des donnees trop importante\n");
+    }
 }
 
 DataPacket::DataPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
         delete[] data;
-        throw std::runtime_error("Erreur lors du traitement d'un paquet RRQ\n");
+        throw std::runtime_error("Erreur lors du traitement d'un paquet DATA\n");
     }
 
     char* filename = data + sizeof(getOpcode());
@@ -21,8 +24,19 @@ DataPacket::DataPacket(char* data, int size) {
 
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mPartition = ntohl(*partNb);
-    // TODO
-    delete[] data;
+
+    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
+    mBlockNb = htonl(*blockNb);
+
+    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb));
+    mBlockSize = htonl(*blockSize);
+
+    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb) + sizeof(mBlockSize));
+
+    mBlockData = new char[MAX_DATA_SIZE];
+    int maxSize = MAX_DATA_SIZE;
+    memcpy(mBlockData, blockData, std::min(mBlockSize, maxSize));
+
 }
 
 DataPacket::~DataPacket() {
@@ -52,7 +66,14 @@ char* DataPacket::toData() {
 
     int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
     *blockNb = htonl(mBlockNb);
-    // TODO
+
+    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb));
+    *blockSize = htonl(mBlockSize);
+
+    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb) + sizeof(mBlockSize));
+    int maxSize = MAX_DATA_SIZE;
+    memcpy(blockData, mBlockData, std::min(mBlockSize, maxSize));
+
     return data;
 }
 

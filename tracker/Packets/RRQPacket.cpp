@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
-RRQPacket::RRQPacket(std::string filename, int partition) : mFileName(filename), mPartition(partition) {
+RRQPacket::RRQPacket(std::string filename, int partition, int firstBlock) : mFileName(filename), mPartition(partition), mFirstPacket(firstBlock) {
 }
 
 RRQPacket::RRQPacket(char* data, int size) {
@@ -22,9 +22,7 @@ RRQPacket::RRQPacket(char* data, int size) {
     mPartition = ntohl(*partNb);
 
     int* firstPacket = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
-    *mFirstPacket = htonl(firstPacket);
-
-    delete[] data;
+    mFirstPacket = htonl(*firstPacket);
 }
 
 RRQPacket::~RRQPacket() {

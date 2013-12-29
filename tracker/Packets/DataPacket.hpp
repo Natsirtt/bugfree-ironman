@@ -1,5 +1,5 @@
-#ifndef WRQPACKET_HPP
-#define WRQPACKET_HPP
+#ifndef DATAPACKET_HPP
+#define DATAPACKET_HPP
 
 #include "IPacket.hpp"
 
@@ -14,8 +14,8 @@
  */
 class DataPacket : public IPacket {
     public:
-        static const int MAX_FILENAME_SIZE = 100;
         static const int MAX_DATA_SIZE = 512;
+        static const int MAX_FILENAME_SIZE = 100;
 
         /**
          * Construit un paquet à partir de ces paramétres.

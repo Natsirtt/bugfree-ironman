@@ -1,6 +1,8 @@
 #include "NetworkTranslator.hpp"
 #include "Opcode.hpp"
 #include "Packets/RRQPacket.hpp"
+#include "Packets/WRQPacket.hpp"
+#include "Packets/DataPacket.hpp"
 
 NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 
@@ -9,7 +11,8 @@ NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int timeout) {
 
     char data[512]; // TODO calculer la taille du buffer
-    if (mSocket->read(data, 512, adresse, port, timeout) <= 0) {
+    int sizeRead = 0;
+    if ((sizeRead = mSocket->read(data, 512, adresse, port, timeout)) <= 0) {
         return NULL;
     }
 
@@ -20,7 +23,11 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
     // TODO Traduire les paquets
     switch (opcode) {
     case RRQ:
-        packet = new RRQPacket(data);
+        packet = new RRQPacket(data, sizeRead);
+    case WRQ:
+        packet = new WRQPacket(data, sizeRead);
+    case DATA:
+        packet = new DataPacket(data, sizeRead);
     }
 
     return packet;

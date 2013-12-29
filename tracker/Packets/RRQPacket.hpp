@@ -19,7 +19,7 @@ class RRQPacket : public IPacket {
         /**
          * Construit un paquet à partir de ces paramétres.
          */
-        RRQPacket(std::string filename, int partition, int firstPacket);
+        RRQPacket(std::string filename, int partition, int firstBlock);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.

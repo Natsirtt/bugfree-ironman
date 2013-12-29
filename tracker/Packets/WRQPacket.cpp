@@ -21,7 +21,6 @@ WRQPacket::WRQPacket(char* data, int size) {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mPartition = ntohl(*partNb);
 
-    delete[] data;
 }
 
 WRQPacket::~WRQPacket() {

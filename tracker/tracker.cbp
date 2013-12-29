@@ -46,9 +46,13 @@
 		<Unit filename="Operation.hpp" />
 		<Unit filename="OperationQueue.cpp" />
 		<Unit filename="OperationQueue.hpp" />
+		<Unit filename="Packets/DataPacket.cpp" />
+		<Unit filename="Packets/DataPacket.hpp" />
 		<Unit filename="Packets/IPacket.hpp" />
 		<Unit filename="Packets/RRQPacket.cpp" />
 		<Unit filename="Packets/RRQPacket.hpp" />
+		<Unit filename="Packets/WRQPacket.cpp" />
+		<Unit filename="Packets/WRQPacket.hpp" />
 		<Unit filename="SocketUDP.cpp" />
 		<Unit filename="SocketUDP.hpp" />
 		<Unit filename="Thread.cpp" />
