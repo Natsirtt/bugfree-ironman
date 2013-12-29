@@ -1,32 +1,33 @@
-#ifndef RRQPACKET_HPP
-#define RRQPACKET_HPP
+#ifndef WRQPACKET_HPP
+#define WRQPACKET_HPP
 
 #include "IPacket.hpp"
 
 /**
- * Organisation d'un RRQ :
- * -----------------------------------------
- * |opcode|filename|partitionNb|firstPacket|
- * -----------------------------------------
- * | 4    | 100    | 4         | 4         |tailles en octets
- * -----------------------------------------
- * Taille d'un RRQ : 112 octets
+ * Organisation d'un DATA :
+ * ---------------------------------------------------------
+ * |opcode|filename|partitionNb|blockNb|blockSize|blockData|
+ * ---------------------------------------------------------
+ * | 4    | 100    | 4         | 4     | 4       | 512     | tailles en octets
+ * ---------------------------------------------------------
+ * Taille d'un DATA : 618 octets
  */
-class RRQPacket : public IPacket {
+class DataPacket : public IPacket {
     public:
         static const int MAX_FILENAME_SIZE = 100;
+        static const int MAX_DATA_SIZE = 512;
 
         /**
          * Construit un paquet à partir de ces paramétres.
          */
-        RRQPacket(std::string filename, int partition, int firstPacket);
+        DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.
          */
-        RRQPacket(char* data, int size);
+        DataPacket(char* data, int size);
 
-        ~RRQPacket();
+        ~DataPacket();
 
         /**
          * Renvoie l'opcode du packet.
@@ -53,7 +54,9 @@ class RRQPacket : public IPacket {
     private:
         std::string mFileName;
         int mPartition;
-        int mFirstPacket;
+        int mBlockNb;
+        int mBlockSize;
+        char* mBlockData;
 };
 
 #endif // IPACKET_HPP

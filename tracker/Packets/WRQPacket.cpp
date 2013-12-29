@@ -1,14 +1,14 @@
-#include "RRQPacket.hpp"
+#include "WRQPacket.hpp"
 #include "../Opcode.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
 
-RRQPacket::RRQPacket(std::string filename, int partition) : mFileName(filename), mPartition(partition) {
+WRQPacket::WRQPacket(std::string filename, int partition) : mFileName(filename), mPartition(partition) {
 }
 
-RRQPacket::RRQPacket(char* data, int size) {
+WRQPacket::WRQPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
         delete[] data;
@@ -21,25 +21,22 @@ RRQPacket::RRQPacket(char* data, int size) {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mPartition = ntohl(*partNb);
 
-    int* firstPacket = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
-    *mFirstPacket = htonl(firstPacket);
-
     delete[] data;
 }
 
-RRQPacket::~RRQPacket() {
+WRQPacket::~WRQPacket() {
 
 }
 
-int RRQPacket::getOpcode() {
-    return RRQ;
+int WRQPacket::getOpcode() {
+    return WRQ;
 }
 
-int RRQPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int);
+int WRQPacket::getSize() {
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int);
 }
 
-char* RRQPacket::toData() {
+char* WRQPacket::toData() {
     char* data = new char[getSize()];
 
     int* opcode = (int*) data;
@@ -52,11 +49,9 @@ char* RRQPacket::toData() {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *partNb = htonl(mPartition);
 
-    int* firstPacket = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
-    *firstPacket = htonl(mFirstPacket);
     return data;
 }
 
-void RRQPacket::exec(std::string adresse) {
+void WRQPacket::exec(std::string adresse) {
     // TODO
 }

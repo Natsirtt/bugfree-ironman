@@ -1,14 +1,15 @@
-#include "RRQPacket.hpp"
+#include "DataPacket.hpp"
 #include "../Opcode.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
 
-RRQPacket::RRQPacket(std::string filename, int partition) : mFileName(filename), mPartition(partition) {
+DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData)
+                        : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize), mBlockData(blockData) {
 }
 
-RRQPacket::RRQPacket(char* data, int size) {
+DataPacket::DataPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
         delete[] data;
@@ -20,26 +21,23 @@ RRQPacket::RRQPacket(char* data, int size) {
 
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mPartition = ntohl(*partNb);
-
-    int* firstPacket = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
-    *mFirstPacket = htonl(firstPacket);
-
+    // TODO
     delete[] data;
 }
 
-RRQPacket::~RRQPacket() {
+DataPacket::~DataPacket() {
 
 }
 
-int RRQPacket::getOpcode() {
-    return RRQ;
+int DataPacket::getOpcode() {
+    return DATA;
 }
 
-int RRQPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int);
+int DataPacket::getSize() {
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int) + sizeof(int) + MAX_DATA_SIZE;
 }
 
-char* RRQPacket::toData() {
+char* DataPacket::toData() {
     char* data = new char[getSize()];
 
     int* opcode = (int*) data;
@@ -52,11 +50,12 @@ char* RRQPacket::toData() {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *partNb = htonl(mPartition);
 
-    int* firstPacket = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
-    *firstPacket = htonl(mFirstPacket);
+    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
+    *blockNb = htonl(mBlockNb);
+    // TODO
     return data;
 }
 
-void RRQPacket::exec(std::string adresse) {
+void DataPacket::exec(std::string adresse) {
     // TODO
 }
