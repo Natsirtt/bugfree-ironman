@@ -11,5 +11,9 @@
 #define DATA 3
 #define ACK 4
 #define ERROR 5
+#define ALIVE 6
+#define FILE_REQUEST 7
+#define FILE_ANSWER 8
+#define FILE_UPDATE 9
 
 #endif // OPCODE_HPP
