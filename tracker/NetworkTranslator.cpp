@@ -1,4 +1,6 @@
 #include "NetworkTranslator.hpp"
+
+#include <arpa/inet.h>
 #include "Opcode.hpp"
 #include "Packets/RRQPacket.hpp"
 #include "Packets/WRQPacket.hpp"
@@ -17,7 +19,8 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
         return NULL;
     }
 
-    int opcode = 0; // TODO récuperer l'opcode dans data
+
+    int opcode = ntohl(*(int*) data);
 
     IPacket* packet = NULL;
 
