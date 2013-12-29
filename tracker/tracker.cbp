@@ -32,12 +32,27 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add option="-lpthread" />
+		</Linker>
+		<Unit filename="File.cpp" />
+		<Unit filename="File.hpp" />
+		<Unit filename="KnowledgeBase.cpp" />
+		<Unit filename="KnowledgeBase.hpp" />
+		<Unit filename="NetworkTranslator.cpp" />
+		<Unit filename="NetworkTranslator.hpp" />
+		<Unit filename="Opcode.hpp" />
+		<Unit filename="Operation.cpp" />
+		<Unit filename="Operation.hpp" />
+		<Unit filename="OperationQueue.cpp" />
+		<Unit filename="OperationQueue.hpp" />
+		<Unit filename="Packets/IPacket.hpp" />
+		<Unit filename="Packets/RRQPacket.cpp" />
+		<Unit filename="Packets/RRQPacket.hpp" />
 		<Unit filename="SocketUDP.cpp" />
 		<Unit filename="SocketUDP.hpp" />
-		<Unit filename="file.cpp" />
-		<Unit filename="file.hpp" />
-		<Unit filename="knowledgeBase.cpp" />
-		<Unit filename="knowledgeBase.hpp" />
+		<Unit filename="Thread.cpp" />
+		<Unit filename="Thread.hpp" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
