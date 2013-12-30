@@ -23,8 +23,8 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
         return NULL;
     }
 
-
-    int opcode = ntohl(*(int*) data);
+    int* opcodePtr = (int*) data;
+    int opcode = ntohl(*opcodePtr);
 
     IPacket* packet = NULL;
 

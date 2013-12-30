@@ -12,7 +12,7 @@
 class KnowledgeBase {
 
 	public:
-		static KnowledgeBase get() {
+		static KnowledgeBase& get() {
             static KnowledgeBase kb;
             return kb;
 		}
