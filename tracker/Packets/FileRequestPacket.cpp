@@ -33,7 +33,7 @@ unsigned int FileRequestPacket::getOpcode() {
 }
 
 int FileRequestPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int) + sizeof(int);
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(bool);
 }
 
 char* FileRequestPacket::toData() {

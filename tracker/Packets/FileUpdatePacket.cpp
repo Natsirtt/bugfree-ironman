@@ -26,7 +26,7 @@ FileUpdatePacket::~FileUpdatePacket() {
 
 }
 
-int FileUpdatePacket::getOpcode() {
+unsigned int FileUpdatePacket::getOpcode() {
     return FILE_UPDATE;
 }
 

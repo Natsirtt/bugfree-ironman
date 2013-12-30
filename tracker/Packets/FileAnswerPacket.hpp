@@ -19,7 +19,7 @@
  *    --------------------------
  *    | 4           | 60 ?     |
  *    --------------------------
- * Taille d'un FileAnswer : 108 octets
+ * Taille d'un FileAnswer : 620 octets
  */
 class FileAnswerPacket : public IPacket {
     public:

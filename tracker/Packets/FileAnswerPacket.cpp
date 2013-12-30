@@ -39,7 +39,7 @@ unsigned int FileAnswerPacket::getOpcode() {
 }
 
 int FileAnswerPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int);
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(Association) * MAX_ASSOC_NUMBER;
 }
 
 char* FileAnswerPacket::toData() {

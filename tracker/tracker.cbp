@@ -56,6 +56,8 @@
 		<Unit filename="Packets/FileAnswerPacket.hpp" />
 		<Unit filename="Packets/FileRequestPacket.cpp" />
 		<Unit filename="Packets/FileRequestPacket.hpp" />
+		<Unit filename="Packets/FileUpdatePacket.cpp" />
+		<Unit filename="Packets/FileUpdatePacket.hpp" />
 		<Unit filename="Packets/IPacket.hpp" />
 		<Unit filename="Packets/RRQPacket.cpp" />
 		<Unit filename="Packets/RRQPacket.hpp" />

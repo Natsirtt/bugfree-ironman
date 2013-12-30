@@ -35,7 +35,7 @@ ACKPacket::~ACKPacket() {
 }
 
 unsigned int ACKPacket::getOpcode() {
-    return DATA;
+    return ACK;
 }
 
 int ACKPacket::getSize() {
