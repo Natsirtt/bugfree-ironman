@@ -1,5 +1,6 @@
 #include "Client.hpp"
 
+#include <ctime>
 
 Client::Client(std::string adresse) : mAdresse(adresse) {
     alive();
@@ -10,13 +11,12 @@ std::string Client::getAdresse() {
 }
 
 void Client::alive() {
-    // TODO
+    mLastAlive = std::time(NULL);
 }
 
 
 bool Client::isAlive() {
-    // TODO
-    return false;
+    return (std::time(NULL) - mLastAlive) < CONNECTION_TIMEOUT;
 }
 
 void Client::updateFile(std::string filename, char* bitmap, int bitmapSize) {

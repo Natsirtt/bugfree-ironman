@@ -7,6 +7,9 @@
 
 class Client {
     public:
+        // Le nombre de secondes à attendre avant de considérer un client déconnecté
+        static const int CONNECTION_TIMEOUT = 10;
+
         Client(std::string adresse);
 
         std::string getAdresse();

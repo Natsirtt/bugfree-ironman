@@ -35,7 +35,7 @@ FileAnswerPacket::~FileAnswerPacket() {
 }
 
 unsigned int FileAnswerPacket::getOpcode() {
-    return WRQ;
+    return FILE_ANSWER;
 }
 
 int FileAnswerPacket::getSize() {

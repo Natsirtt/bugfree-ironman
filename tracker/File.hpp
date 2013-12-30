@@ -1,10 +1,10 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
+#include <set>
 #include <string>
 
 class File {
-
 	public:
         File();
 		File(std::string name, long long size, int partitionSize);
@@ -14,6 +14,9 @@ class File {
 		int getPartitionsNb();
 		int getPartitionSize();
 		int getLastPartitionSize();
+
+        void addClient(std::string clientName);
+		std::set<std::string>& getClients();
 
 		std::string getKey();
 
@@ -25,6 +28,8 @@ class File {
 		long long mSize;
 		int mPartitionsNb;
 		int mPartitionSize;
+
+		std::set<std::string> mClients;
 };
 
 

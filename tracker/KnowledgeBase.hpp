@@ -25,6 +25,7 @@ class KnowledgeBase {
         void addFile(File file);
 
         Client& getClient(std::string clientName);
+        File& getFile(std::string fileName);
 
 	private:
 	    KnowledgeBase();

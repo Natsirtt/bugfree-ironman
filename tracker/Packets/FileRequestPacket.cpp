@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
+#include "FileAnswerPacket.hpp"
+
 FileRequestPacket::FileRequestPacket(std::string filename, bool send)
                         : mFileName(filename), mSend(send) {
 }
@@ -53,5 +55,11 @@ char* FileRequestPacket::toData() {
 }
 
 void FileRequestPacket::exec(std::string adresse) {
-    // TODO
+    std::vector<Association> assocs;
+
+    // TODO Recupérer les associations
+
+    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, assocs);
+
+    // TODO envoyer le paquet
 }

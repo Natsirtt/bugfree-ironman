@@ -50,10 +50,19 @@ bool KnowledgeBase::hasPartition(std::string client, std::string file, int parti
 Client& KnowledgeBase::getClient(std::string clientName) {
     try {
         Client c = mClientDesc.at(clientName);
-
     } catch (...) {
         Client client(clientName);
         mClientDesc.insert(std::pair<std::string, Client>(clientName, client));
     }
     return mClientDesc.at(clientName);
+}
+
+File& KnowledgeBase::getFile(std::string fileName) {
+    try {
+        File f = mFilesDesc.at(fileName);
+    } catch (...) {
+        //File file(fileName); TODO ajouter les paramètre manquants
+        //mFilesDesc.insert(std::pair<std::string, Client>(fileName, file));
+    }
+    return mFilesDesc.at(fileName);
 }

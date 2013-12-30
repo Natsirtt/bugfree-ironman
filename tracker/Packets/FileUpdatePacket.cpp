@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
+#include "../KnowledgeBase.hpp"
+
 FileUpdatePacket::FileUpdatePacket(std::string filename, int bitmapSize, char *partitionBitmap)
                         : mFileName(filename), mBitmapSize(bitmapSize), mPartitionBitmap(partitionBitmap) {
 }
@@ -57,5 +59,11 @@ char* FileUpdatePacket::toData() {
 }
 
 void FileUpdatePacket::exec(std::string adresse) {
-    // TODO
+    Client& c = KnowledgeBase::get().getClient(adresse);
+    c.alive();
+    c.updateFile(mFileName, mPartitionBitmap, mBitmapSize);
+
+    File& f = KnowledgeBase::get().getFile(mFileName);
+    f.addClient(adresse);
+
 }

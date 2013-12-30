@@ -39,3 +39,11 @@ int File::getPartitionsNb() {
 std::string File::getKey() {
     return mName;
 }
+
+void File::addClient(std::string clientName) {
+    mClients.insert(clientName);
+}
+
+std::set<std::string>& File::getClients() {
+    return mClients;
+}
