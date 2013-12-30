@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
+#include "../KnowledgeBase.hpp"
+
 AlivePacket::AlivePacket() {
 }
 
@@ -12,7 +14,7 @@ AlivePacket::AlivePacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
         delete[] data;
-        throw std::runtime_error("Erreur lors du traitement d'un paquet ACK\n");
+        throw std::runtime_error("Erreur lors du traitement d'un paquet Alive\n");
     }
 }
 
@@ -38,5 +40,5 @@ char* AlivePacket::toData() {
 }
 
 void AlivePacket::exec(std::string adresse) {
-    // TODO
+    KnowledgeBase::get().getClient(adresse).alive();
 }

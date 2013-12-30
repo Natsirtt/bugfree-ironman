@@ -46,3 +46,14 @@ bool KnowledgeBase::hasPartition(std::string client, std::string file, int parti
     }
     return false;
 }
+
+Client& KnowledgeBase::getClient(std::string clientName) {
+    try {
+        Client c = mClientDesc.at(clientName);
+
+    } catch (...) {
+        Client client(clientName);
+        mClientDesc.insert(std::pair<std::string, Client>(clientName, client));
+    }
+    return mClientDesc.at(clientName);
+}

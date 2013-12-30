@@ -14,11 +14,11 @@ using namespace std;
 #define THREAD_NUMBER 5
 
 #define TRACKER_PORT 98765
+#define CLIENT_PORT 98764
 
 int main() {
 
     try {
-
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
 
@@ -55,7 +55,6 @@ int main() {
             threads[i].join();
         }
         OperationQueue::get().clear();
-
     } catch(std::exception& e) {
         std::cerr << "Une erreur est survenue : " << e.what() << std::endl;
     }
