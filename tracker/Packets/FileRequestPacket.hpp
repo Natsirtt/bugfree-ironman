@@ -10,7 +10,7 @@
  * -------------------------
  * | 4    | 100    | 1     |
  * -------------------------
- * Taille d'un FileRequest : 101 octets
+ * Taille d'un FileRequest : 105 octets
  */
 class FileRequestPacket : public IPacket {
     public:

@@ -10,7 +10,7 @@
  * ---------------------------------------------------------
  * | 4    | 100    | 4         | 4     | 4       | 512     | tailles en octets
  * ---------------------------------------------------------
- * Taille d'un DATA : 618 octets
+ * Taille d'un DATA : 628 octets
  */
 class DataPacket : public IPacket {
     public:
