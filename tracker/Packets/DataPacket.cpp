@@ -43,7 +43,7 @@ DataPacket::~DataPacket() {
 
 }
 
-int DataPacket::getOpcode() {
+unsigned int DataPacket::getOpcode() {
     return DATA;
 }
 

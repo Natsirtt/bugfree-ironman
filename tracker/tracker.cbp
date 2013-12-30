@@ -52,6 +52,8 @@
 		<Unit filename="Packets/AlivePacket.hpp" />
 		<Unit filename="Packets/DataPacket.cpp" />
 		<Unit filename="Packets/DataPacket.hpp" />
+		<Unit filename="Packets/FileAnswerPacket.cpp" />
+		<Unit filename="Packets/FileAnswerPacket.hpp" />
 		<Unit filename="Packets/FileRequestPacket.cpp" />
 		<Unit filename="Packets/FileRequestPacket.hpp" />
 		<Unit filename="Packets/IPacket.hpp" />

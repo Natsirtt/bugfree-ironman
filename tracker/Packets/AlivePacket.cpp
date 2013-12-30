@@ -20,7 +20,7 @@ AlivePacket::~AlivePacket() {
 
 }
 
-int AlivePacket::getOpcode() {
+unsigned int AlivePacket::getOpcode() {
     return ALIVE;
 }
 

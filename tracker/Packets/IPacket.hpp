@@ -11,7 +11,7 @@ class IPacket {
         /**
          * Renvoie l'opcode du packet.
          */
-        virtual int getOpcode() = 0;
+        virtual unsigned int getOpcode() = 0;
 
         /**
          * Renvoie la taille du paquet.

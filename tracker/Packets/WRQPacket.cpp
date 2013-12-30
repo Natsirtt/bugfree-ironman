@@ -27,7 +27,7 @@ WRQPacket::~WRQPacket() {
 
 }
 
-int WRQPacket::getOpcode() {
+unsigned int WRQPacket::getOpcode() {
     return WRQ;
 }
 

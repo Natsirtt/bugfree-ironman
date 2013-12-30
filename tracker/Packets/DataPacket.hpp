@@ -32,7 +32,7 @@ class DataPacket : public IPacket {
         /**
          * Renvoie l'opcode du packet.
          */
-        int getOpcode();
+        unsigned int getOpcode();
 
         /**
          * Renvoie la taille du paquet.

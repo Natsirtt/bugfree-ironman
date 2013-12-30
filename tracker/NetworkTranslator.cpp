@@ -7,6 +7,8 @@
 #include "Packets/DataPacket.hpp"
 #include "Packets/ACKPacket.hpp"
 #include "Packets/AlivePacket.hpp"
+#include "Packets/FileRequestPacket.hpp"
+#include "Packets/FileAnswerPacket.hpp"
 
 NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 
@@ -37,6 +39,8 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
         packet = new ACKPacket(data, sizeRead);
     case ALIVE:
         packet = new AlivePacket(data, sizeRead);
+    case FILE_REQUEST:
+        packet = new FileRequestPacket(data, sizeRead);
     }
 
     return packet;

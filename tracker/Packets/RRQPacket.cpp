@@ -29,7 +29,7 @@ RRQPacket::~RRQPacket() {
 
 }
 
-int RRQPacket::getOpcode() {
+unsigned int RRQPacket::getOpcode() {
     return RRQ;
 }
 

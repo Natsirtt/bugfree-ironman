@@ -34,7 +34,7 @@ ACKPacket::~ACKPacket() {
 
 }
 
-int ACKPacket::getOpcode() {
+unsigned int ACKPacket::getOpcode() {
     return DATA;
 }
 

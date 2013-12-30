@@ -28,7 +28,7 @@ FileRequestPacket::~FileRequestPacket() {
 
 }
 
-int FileRequestPacket::getOpcode() {
+unsigned int FileRequestPacket::getOpcode() {
     return FILE_REQUEST;
 }
 
