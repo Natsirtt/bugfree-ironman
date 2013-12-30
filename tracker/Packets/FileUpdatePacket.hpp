@@ -5,16 +5,16 @@
 
 /**
  * Organisation d'un FileUpdate :
- * ----------------------------------------------------
- * | opcode      | filename   | bitmap des partitions |
- * ----------------------------------------------------
- * | 4           | 100        | 512                   | tailles en octets
- * ----------------------------------------------------
- * Taille d'un FileUpdate : 616 octets
+ * -------------------------------------------------------------
+ * | opcode | filename | taille bitmap | bitmap des partitions |
+ * -------------------------------------------------------------
+ * | 4      | 100      | 4             | 512                   | tailles en octets
+ * -------------------------------------------------------------
+ * Taille d'un FileUpdate : 620 octets
  */
 class FileUpdatePacket : public IPacket {
     public:
-        static const int BITMAP_SIZE = 512;
+        static const int MAX_BITMAP_SIZE = 512;
         static const int MAX_FILENAME_SIZE = 100;
 
         /**
@@ -53,6 +53,7 @@ class FileUpdatePacket : public IPacket {
 
     private:
         std::string mFileName;
+        int mBitmapSize;
         char* mPartitionBitmap;
 };
 
