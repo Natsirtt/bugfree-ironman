@@ -54,3 +54,11 @@ char* WRQPacket::toData() {
 void WRQPacket::exec(std::string adresse) {
     // TODO
 }
+
+std::string WRQPacket::getName() {
+    return mFileName;
+}
+
+int WRQPacket::getPartitionNb() {
+    return mPartition;
+}
