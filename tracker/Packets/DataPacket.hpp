@@ -51,6 +51,18 @@ class DataPacket : public IPacket {
          */
         void exec(std::string adresse);
 
+        //Accesseurs
+
+        std::string getName();
+
+        int getPartitionNb();
+
+        int getBlockNb();
+
+        int getBlockSize();
+
+        void getData(char *buffer, int bufferSize)
+
     private:
         std::string mFileName;
         int mPartition;
