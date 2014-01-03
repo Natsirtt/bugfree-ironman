@@ -7,20 +7,20 @@
  #include "NetworkTranslator.hpp"
  #include "OperationQueue.hpp"
  #include "Thread.hpp"
+ #include "Defines.hpp"
+ #include "AnswerQueue.hpp"
 
 using namespace std;
 
-// Le nombre de threads de traitement qu'on utilise
-#define THREAD_NUMBER 5
-
-#define TRACKER_PORT 98765
-#define CLIENT_PORT 98764
 
 int main() {
 
     try {
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
+
+        // Un appel à la file des réponses (l'oblige à se constuire si pas encore fait) et démarre de thread
+        AnswerQueue::get().start();
 
         // On genere les threads qui traiteront les operations
         std::vector<Thread> threads;

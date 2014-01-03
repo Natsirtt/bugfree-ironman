@@ -35,8 +35,11 @@
 		<Linker>
 			<Add option="-lpthread" />
 		</Linker>
+		<Unit filename="AnswerQueue.cpp" />
+		<Unit filename="AnswerQueue.hpp" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.hpp" />
+		<Unit filename="Defines.hpp" />
 		<Unit filename="File.cpp" />
 		<Unit filename="File.hpp" />
 		<Unit filename="KnowledgeBase.cpp" />

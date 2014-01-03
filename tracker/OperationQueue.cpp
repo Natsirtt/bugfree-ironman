@@ -6,7 +6,7 @@
 #include <sys/sem.h>
 
 #define KEY_FILE "opqueue"
-#define KEY_ID 10
+#define KEY_ID 1
 
 
 OperationQueue::OperationQueue() {
