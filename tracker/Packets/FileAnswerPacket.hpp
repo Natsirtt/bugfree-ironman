@@ -6,6 +6,8 @@
 #include <string>
 #include "IPacket.hpp"
 
+#include "../KnowledgeBase.hpp"
+
 /**
  * Organisation d'un FileAnswer :
  * ------------------------------------------------
@@ -25,11 +27,6 @@ class FileAnswerPacket : public IPacket {
     public:
         static const int MAX_FILENAME_SIZE = 100;
         static const int MAX_ASSOC_NUMBER = 8;
-
-        struct Association {
-            int partition;
-            char ipClient[60];
-        };
 
         /**
          * Construit un paquet à partir de ces paramétres.

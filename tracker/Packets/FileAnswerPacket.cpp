@@ -5,6 +5,9 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
+#include "WRQPacket.hpp"
+#include "../AnswerQueue.hpp"
+
 FileAnswerPacket::FileAnswerPacket(std::string filename, std::vector<Association> assoc) : mFileName(filename), mAssoc(assoc) {
     if (mAssoc.size() > MAX_ASSOC_NUMBER) {
         throw std::runtime_error("Erreur lors de la construction du paquet FileAnswer : trop d'associations\n");
@@ -64,5 +67,10 @@ char* FileAnswerPacket::toData() {
 }
 
 void FileAnswerPacket::exec(std::string adresse) {
-    // TODO
+    for (unsigned int i = 0; i < mAssoc.size(); ++i) {
+        IPacket* packet = new WRQPacket(mFileName, mAssoc[i].partition);
+        std::string addr(mAssoc[i].ipClient);
+
+        AnswerQueue::get().sendToClient(packet, addr);
+    }
 }

@@ -9,16 +9,33 @@
 #include "File.hpp"
 #include "Client.hpp"
 
-class KnowledgeBase {
+struct Association {
+    int partition;
+    char ipClient[60];
+};
+
+/**
+ * Classe permettant de garder toutes les données du tracker.
+ * Note : ThreadSafe
+ */
+class KnowledgeBase { // TODO rendre threadSafe
 
 	public:
 		static KnowledgeBase& get() {
             static KnowledgeBase kb;
             return kb;
 		}
-
+        /**
+         * Renvoie les partitions d'un client pour un fichier donné.
+         */
 		std::vector<int> getPartitions(std::string client, std::string file);
+        /**
+         * Renvoie les clients possédant au moins une partition d'un fichier donné.
+         */
 		std::vector<std::string> getClients(std::string file);
+        /**
+         * Renvoie les clients possédant une partition d'un fichier donné.
+         */
 		std::vector<std::string> getClients(std::string file, int partition);
 
 		void addPartition(std::string client, std::string file, int partition);
@@ -26,6 +43,12 @@ class KnowledgeBase {
 
         Client& getClient(std::string clientName);
         File& getFile(std::string fileName);
+
+        /**
+         * Renvoie les clients auquels il faut envoyer un fichier.
+         * Permet de calculer les clients les mieux placés pour recevoir une partition.
+         */
+        std::vector<Association> getClientsToSend(std::string filename);
 
 	private:
 	    KnowledgeBase();

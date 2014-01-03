@@ -66,3 +66,9 @@ File& KnowledgeBase::getFile(std::string fileName) {
     }
     return mFilesDesc.at(fileName);
 }
+
+std::vector<Association> KnowledgeBase::getClientsToSend(std::string filename) {
+    std::vector<Association> assocs;
+    // TODO
+    return assocs;
+}

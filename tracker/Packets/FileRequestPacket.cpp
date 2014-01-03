@@ -7,6 +7,8 @@
 
 #include "FileAnswerPacket.hpp"
 #include "../AnswerQueue.hpp"
+#include "../KnowledgeBase.hpp"
+
 
 FileRequestPacket::FileRequestPacket(std::string filename, bool send)
                         : mFileName(filename), mSend(send) {
@@ -56,11 +58,10 @@ char* FileRequestPacket::toData() {
 }
 
 void FileRequestPacket::exec(std::string adresse) {
-    std::vector<FileAnswerPacket::Association> assocs;
+    Client& c = KnowledgeBase::get().getClient(adresse);
+    c.alive();
 
-    // TODO Recupérer les associations
-
+    std::vector<Association> assocs = KnowledgeBase::get().getClientsToSend(mFileName);
     FileAnswerPacket* fap = new FileAnswerPacket(mFileName, assocs);
-
     AnswerQueue::get().sendToClient(fap, adresse);
 }

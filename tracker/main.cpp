@@ -14,7 +14,6 @@ using namespace std;
 
 
 int main() {
-
     try {
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
@@ -46,7 +45,6 @@ int main() {
 
             // On ajoute l'opération à la file des opérations
             OperationQueue::get().addOperation(op);
-
         }
 
         // On nettoie toutes les données
@@ -55,6 +53,7 @@ int main() {
             threads[i].join();
         }
         OperationQueue::get().clear();
+        AnswerQueue::get().stop();
     } catch(std::exception& e) {
         std::cerr << "Une erreur est survenue : " << e.what() << std::endl;
     }
