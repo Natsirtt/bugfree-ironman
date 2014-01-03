@@ -102,5 +102,5 @@ void DataPacket::getData(char *buffer, int bufferSize) {
         throw std::runtime_error("Erreur lors de la récupération des données d'un paquet DATA : buffer trop petit\n");
     }
     strncpy(buffer, mBlockData, bufferSize);
-    return 0;
+    //return 0;
 }

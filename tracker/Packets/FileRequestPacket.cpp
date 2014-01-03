@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "FileAnswerPacket.hpp"
+#include "../AnswerQueue.hpp"
 
 FileRequestPacket::FileRequestPacket(std::string filename, bool send)
                         : mFileName(filename), mSend(send) {
@@ -55,11 +56,11 @@ char* FileRequestPacket::toData() {
 }
 
 void FileRequestPacket::exec(std::string adresse) {
-    std::vector<Association> assocs;
+    std::vector<FileAnswerPacket::Association> assocs;
 
     // TODO Recupérer les associations
 
     FileAnswerPacket* fap = new FileAnswerPacket(mFileName, assocs);
 
-    // TODO envoyer le paquet
+    AnswerQueue::get().sendToClient(fap, adresse);
 }

@@ -49,7 +49,7 @@ char* FileUpdatePacket::toData() {
     strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE - 1);
     filename[MAX_FILENAME_SIZE - 1] = '\0'; // Protection
 
-    int* bitmapSize = data + sizeof(getOpcode()) + MAX_FILENAME_SIZE;
+    int* bitmapSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *bitmapSize = htonl(mBitmapSize);
 
     char* bitmap = (data + sizeof(getOpcode()) + sizeof(int) + MAX_FILENAME_SIZE);

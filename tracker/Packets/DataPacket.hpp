@@ -61,7 +61,7 @@ class DataPacket : public IPacket {
 
         int getBlockSize();
 
-        void getData(char *buffer, int bufferSize)
+        void getData(char *buffer, int bufferSize);
 
     private:
         std::string mFileName;

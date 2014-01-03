@@ -20,7 +20,7 @@ class FileUpdatePacket : public IPacket {
         /**
          * Construit un paquet à partir de ces paramétres.
          */
-        FileUpdatePacket(std::string filename, char* partitionBitmap);
+        FileUpdatePacket(std::string filename, int bitmapSize, char *partitionBitmap);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.

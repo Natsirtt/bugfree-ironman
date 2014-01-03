@@ -39,6 +39,8 @@
 		<Unit filename="AnswerQueue.hpp" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.hpp" />
+		<Unit filename="ClientKnowledgeBase.cpp" />
+		<Unit filename="ClientKnowledgeBase.hpp" />
 		<Unit filename="Defines.hpp" />
 		<Unit filename="File.cpp" />
 		<Unit filename="File.hpp" />

@@ -29,6 +29,10 @@ class ClientKnowledgeBase {
     private:
         ClientKnowledgeBase();
 
+        void lock();
+        void unlock();
+        std::string blocksMapKey(std::string filename, int partitionNb);
+
         //Association filename -> liste des partitions possédées
         std::map<std::string, std::vector<int> > mPartitions;
         //Association filename + partitionNb -> blocks reçus
