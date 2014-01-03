@@ -80,3 +80,27 @@ char* DataPacket::toData() {
 void DataPacket::exec(std::string adresse) {
     // TODO
 }
+
+std::string DataPacket::getName() {
+    return mFileName;
+}
+
+int DataPacket::getPartitionNb() {
+    return mPartition;
+}
+
+int DataPacket::getBlockNb() {
+    return mBlockNb;
+}
+
+int DataPacket::getBlockSize() {
+    return mBlockSize;
+}
+
+void DataPacket::getData(char *buffer, int bufferSize) {
+    if (bufferSize < mBlockSize) {
+        throw std::runtime_error("Erreur lors de la récupération des données d'un paquet DATA : buffer trop petit\n");
+    }
+    strncpy(buffer, mBlockData, bufferSize);
+    return 0;
+}

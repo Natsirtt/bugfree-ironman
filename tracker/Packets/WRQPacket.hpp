@@ -50,6 +50,12 @@ class WRQPacket : public IPacket {
          */
         void exec(std::string adresse);
 
+        //Accesseurs
+
+        std::string getName();
+
+        int getPartitionNb();
+
     private:
         std::string mFileName;
         int mPartition;
