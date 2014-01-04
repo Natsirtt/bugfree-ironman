@@ -92,3 +92,8 @@ std::vector<char> ClientKnowledgeBase::getBlockData(std::string filename, int pa
 void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, std::vector<char> data) {
     // TODO
 }
+
+int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partition) {
+    // TODO
+    return 0;
+}

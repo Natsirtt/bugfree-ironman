@@ -27,6 +27,8 @@ class ClientKnowledgeBase {
         std::vector<char> getBlockData(std::string filename, int partition, int block);
         void setBlockData(std::string filename, int partition, int block, std::vector<char> data);
 
+        int getNextFreeBlockNumber(std::string filename, int partition);
+
     protected:
 
     private:
