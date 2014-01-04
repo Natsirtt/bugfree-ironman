@@ -64,6 +64,9 @@ void FileUpdatePacket::exec(std::string adresse) {
     c.updateFile(mFileName, mPartitionBitmap, mBitmapSize);
 
     File& f = KnowledgeBase::get().getFile(mFileName);
-    f.addClient(adresse);
-
+    for (int i = 0; i < f.getPartitionsNb(); ++i) {
+        if (c.hasPartition(mFileName, i)) {
+            f.addClient(&c, i);
+        }
+    }
 }

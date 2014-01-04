@@ -20,8 +20,6 @@ union semun {
 };
 
 AnswerQueue::AnswerQueue() : mThread(-1)  {
-
-    std::cout << "answer" << std::endl;
     // Initialisation du semaphore
     key_t key = ftok(KEY_FILE, KEY_ID);
     if (key == -1) {

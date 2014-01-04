@@ -48,7 +48,7 @@ char* FileRequestPacket::toData() {
     *opcode = htonl(getOpcode());
 
     char* filename = data + sizeof(getOpcode());
-    strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE - 1);
+    strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE);
     filename[MAX_FILENAME_SIZE - 1] = '\0'; // Protection
 
     bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
@@ -65,7 +65,8 @@ void FileRequestPacket::exec(std::string adresse) {
     if (mSend) {
         assocs = KnowledgeBase::get().getClientsToSend(mFileName);
     } else {
-        assocs = KnowledgeBase::get().getClientsToAsk(mFileName);
+        File& f = KnowledgeBase::get().getFile(mFileName);
+        assocs = f.getClientsToAsk();
     }
     FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, assocs);
     AnswerQueue::get().sendToClient(fap, adresse);

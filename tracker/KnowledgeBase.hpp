@@ -8,11 +8,7 @@
 
 #include "File.hpp"
 #include "Client.hpp"
-
-struct Association {
-    int partition;
-    char ipClient[60];
-};
+#include "Association.hpp"
 
 /**
  * Classe permettant de garder toutes les données du tracker.
@@ -42,6 +38,8 @@ class KnowledgeBase { // TODO rendre threadSafe
         void addFile(File file);
 
         Client& getClient(std::string clientName);
+        int getConnectedClientCount();
+
         File& getFile(std::string fileName);
 
         /**
@@ -49,8 +47,6 @@ class KnowledgeBase { // TODO rendre threadSafe
          * Permet de calculer les clients les mieux placés pour recevoir une partition.
          */
         std::vector<Association> getClientsToSend(std::string filename);
-
-        std::vector<Association> getClientsToAsk(std::string filename);
 
 	private:
 	    KnowledgeBase();

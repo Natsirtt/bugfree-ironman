@@ -3,11 +3,17 @@
 
 #include <set>
 #include <string>
+#include <map>
+#include <vector>
+
+#include "Association.hpp"
+
+class Client;
 
 class File {
 	public:
         File();
-		File(std::string name, long long size, int partitionSize);
+		File(std::string& name, long long size, int partitionSize);
 
 		std::string getName();
 		long long getSize();
@@ -15,21 +21,23 @@ class File {
 		int getPartitionSize();
 		int getLastPartitionSize();
 
-        void addClient(std::string clientName);
-		std::set<std::string>& getClients();
+        void addClient(Client* client, int partition);
+		std::set<Client*>& getClients();
+		std::set<Client*>& getClients(int partition);
+
+		std::vector<Association> getClientsToAsk();
 
 		std::string getKey();
-
-	protected:
-
 
 	private:
 		std::string mName;
 		long long mSize;
 		int mPartitionsNb;
 		int mPartitionSize;
-
-		std::set<std::string> mClients;
+        // Ensemble de tous les clients qui possèdent au moins une partition
+		std::set<Client*> mClients;
+        // Association entre les partitions et les ensembles de clients les contenant
+		std::map<int, std::set<Client*> > mPartitionClient;
 };
 
 

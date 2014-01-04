@@ -37,6 +37,7 @@
 		</Linker>
 		<Unit filename="AnswerQueue.cpp" />
 		<Unit filename="AnswerQueue.hpp" />
+		<Unit filename="Association.hpp" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.hpp" />
 		<Unit filename="ClientKnowledgeBase.cpp" />

@@ -1,5 +1,7 @@
 #include "KnowledgeBase.hpp"
 
+#include <cstring>
+
 KnowledgeBase::KnowledgeBase() {}
 
 std::vector<int> KnowledgeBase::getPartitions(std::string client, std::string file) {
@@ -57,6 +59,16 @@ Client& KnowledgeBase::getClient(std::string clientName) {
     return mClientDesc.at(clientName);
 }
 
+int KnowledgeBase::getConnectedClientCount() {
+    int count = 0;
+    for (std::map<std::string, Client>::iterator it = mClientDesc.begin(); it != mClientDesc.end(); ++it) {
+        if (it->second.isAlive()) {
+            count++;
+        }
+    }
+    return count;
+}
+
 File& KnowledgeBase::getFile(std::string fileName) {
     try {
         File f = mFilesDesc.at(fileName);
@@ -69,12 +81,28 @@ File& KnowledgeBase::getFile(std::string fileName) {
 
 std::vector<Association> KnowledgeBase::getClientsToSend(std::string filename) {
     std::vector<Association> assocs;
-    // TODO
-    return assocs;
-}
 
-std::vector<Association> KnowledgeBase::getClientsToAsk(std::string filename) {
-    std::vector<Association> assocs;
-    // TODO
+    int connectedClient = getConnectedClientCount();
+    File& f = getFile(filename);
+
+    int ratio =  std::max(1, f.getPartitionsNb() / connectedClient);
+    if ((f.getPartitionsNb() % connectedClient) != 0) {
+        ratio++;
+    }
+
+    for (int i = 0; i < f.getPartitionsNb(); ++i) {
+        if (f.getClients(i).size() == 0) {
+            for (std::map<std::string, Client>::iterator it = mClientDesc.begin(); it != mClientDesc.end(); ++it) {
+                if (it->second.isAlive() && (it->second.getPartitionNumber(filename) < ratio)) {
+                    Association assoc;
+                    assoc.partition = i;
+                    strncpy(assoc.ipClient, it->second.getAdresse().c_str(), 60);
+                    assocs.push_back(assoc);
+                    break;
+                }
+            }
+        }
+    }
+
     return assocs;
 }

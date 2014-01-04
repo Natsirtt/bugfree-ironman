@@ -15,7 +15,6 @@ using namespace std;
 
 int main() {
     try {
-        std::cout << "main" << std::endl;
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
 
