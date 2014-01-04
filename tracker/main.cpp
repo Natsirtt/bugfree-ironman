@@ -15,10 +15,12 @@ using namespace std;
 
 int main() {
     try {
+        std::cout << "main" << std::endl;
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
 
         // Un appel à la file des réponses (l'oblige à se constuire si pas encore fait) et démarre de thread
+        AnswerQueue::get();
         AnswerQueue::get().start();
 
         // On genere les threads qui traiteront les operations
@@ -33,12 +35,16 @@ int main() {
         NetworkTranslator nt(&mainSocket);
 
         while (1) { // TODO Faire une condition d'arret propre
+            std::cout << "while" << std::endl;
             IPacket* packet = NULL;
             std::string adresse;
             int port = -1;
 
             // On récupére un paquet à partir de la socket
             packet = nt.readPacket(adresse, &port, 0);
+            if (packet == NULL) {
+                continue;
+            }
 
             // On construit une opération
             Operation op(packet, adresse, port);

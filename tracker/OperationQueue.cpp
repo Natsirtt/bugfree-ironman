@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <stdexcept>
 #include <sys/sem.h>
+#include <cstdio>
 
 #define KEY_FILE "opqueue"
 #define KEY_ID 1
@@ -20,7 +21,9 @@ OperationQueue::OperationQueue() {
     if (mReadSem == -1) {
         throw std::runtime_error("Impossible de generer un semaphore");
     }
-    semctl(mReadSem, 1, SETVAL, 0);
+    if (semctl(mReadSem, 0, SETVAL, 0) == -1) {
+        throw std::runtime_error("Erreur lors de l'initialisation d'un semaphore");
+    }
 
     // Initialisation du mutex
     pthread_mutex_init (&mModifyMutex, NULL);
@@ -31,7 +34,10 @@ Operation OperationQueue::getNextOperation() {
     sop.sem_num = 0;
     sop.sem_op = -1;
     sop.sem_flg = 0;
-    semop(mReadSem, &sop, 1);
+    if (semop(mReadSem, &sop, 1) == -1) {
+        perror("semop");
+        throw std::runtime_error("Erreur lors de la decrementation d'un semaphore");
+    }
 
     Operation op = mQueue.front();
 

@@ -15,11 +15,13 @@ NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 
 }
 
-IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int timeout) {
+// Taille max d'un paquet (Taille d'un DataPacket)
+#define MAX_PACKET_SIZE 628
 
-    char data[512]; // TODO calculer la taille du buffer
+IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int timeout) {
+    char data[MAX_PACKET_SIZE];
     int sizeRead = 0;
-    if ((sizeRead = mSocket->read(data, 512, adresse, port, timeout)) <= 0) {
+    if ((sizeRead = mSocket->read(data, MAX_PACKET_SIZE, adresse, port, timeout)) <= 0) {
         return NULL;
     }
 
@@ -28,7 +30,6 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
 
     IPacket* packet = NULL;
 
-    // TODO Traduire les paquets
     switch (opcode) {
     case RRQ:
         packet = new RRQPacket(data, sizeRead);

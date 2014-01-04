@@ -1,9 +1,14 @@
 #include "DataPacket.hpp"
 #include "../Opcode.hpp"
 
+#include "../AnswerQueue.hpp"
+#include "../ClientKnowledgeBase.hpp"
+#include "ACKPacket.hpp"
+
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
+#include <vector>
 
 DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData)
                         : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize), mBlockData(blockData) {
@@ -78,7 +83,14 @@ char* DataPacket::toData() {
 }
 
 void DataPacket::exec(std::string adresse) {
-    // TODO
+    std::vector<char> data(mBlockData, mBlockData + mBlockSize);
+    ClientKnowledgeBase::get().setBlockData(mFileName, mPartition, mBlockNb, data);
+
+    int next = ClientKnowledgeBase::get().getNextFreeBlockNumber(mFileName, mPartition);
+    if (next > 0) {
+        IPacket* packet = new ACKPacket(mFileName, mPartition, mBlockNb, next);
+        AnswerQueue::get().sendToClient(packet, adresse);
+    }
 }
 
 std::string DataPacket::getName() {

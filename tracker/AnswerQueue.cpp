@@ -1,16 +1,27 @@
 #include "AnswerQueue.hpp"
 #include "Defines.hpp"
 
+#include <iostream>
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <stdexcept>
 #include <sys/sem.h>
+#include <cstdio>
 
 #define KEY_FILE "opqueue"
 #define KEY_ID 2
 
+union semun {
+    int val;
+    struct semid_ds* buf;
+    unsigned short* array;
+    struct seminfo* __buf;
+};
+
 AnswerQueue::AnswerQueue() : mThread(-1)  {
+
+    std::cout << "answer" << std::endl;
     // Initialisation du semaphore
     key_t key = ftok(KEY_FILE, KEY_ID);
     if (key == -1) {
@@ -21,7 +32,12 @@ AnswerQueue::AnswerQueue() : mThread(-1)  {
     if (mReadSem == -1) {
         throw std::runtime_error("Impossible de generer un semaphore");
     }
-    semctl(mReadSem, 1, SETVAL, 0);
+
+    semun sAmoi;
+    sAmoi.val = 0;
+    if (semctl(mReadSem, 0, SETVAL, sAmoi) == -1) {
+        throw std::runtime_error("Erreur lors de l'initialisation d'un semaphore");
+    }
 
     // Initialisation du mutex
     pthread_mutex_init (&mModifyMutex, NULL);
@@ -56,11 +72,14 @@ void AnswerQueue::stop() {
 }
 
 AnswerQueue::Answer AnswerQueue::getNextAnswer() {
-    sembuf sop;
-    sop.sem_num = 0;
-    sop.sem_op = -1;
-    sop.sem_flg = 0;
-    semop(mReadSem, &sop, 1);
+    sembuf sop = {0, -1, SEM_UNDO};
+    //sop.sem_num = 0;
+    //sop.sem_op = -1;
+    //sop.sem_flg = SEM_UNDO;
+    if (semop(mReadSem, &sop, 1) == -1) {
+        perror("semop");
+        throw std::runtime_error("Erreur lors de la decrementation d'un semaphore");
+    }
 
     Answer ans = mAnswers.front();
 
