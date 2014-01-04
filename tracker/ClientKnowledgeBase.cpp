@@ -83,3 +83,12 @@ void ClientKnowledgeBase::addBlock(std::string filename, int partitionNb, int bl
     }
     unlock();
 }
+
+std::vector<char> ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block) {
+    // TODO
+    return std::vector<char>();
+}
+
+void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, std::vector<char> data) {
+    // TODO
+}

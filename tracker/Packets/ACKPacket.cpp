@@ -1,6 +1,8 @@
 #include "ACKPacket.hpp"
 #include "../Opcode.hpp"
+#include "../ClientKnowledgeBase.hpp"
 
+#include <vector>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -65,5 +67,7 @@ char* ACKPacket::toData() {
 }
 
 void ACKPacket::exec(std::string adresse) {
-    // TODO
+    if (mNextBlock < 0) {
+        std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
+    }
 }

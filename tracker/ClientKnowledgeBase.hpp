@@ -24,6 +24,9 @@ class ClientKnowledgeBase {
         void addPartition(std::string filename, int partitionNb);
         void addBlock(std::string filename, int partitionNb, int block);
 
+        std::vector<char> getBlockData(std::string filename, int partition, int block);
+        void setBlockData(std::string filename, int partition, int block, std::vector<char> data);
+
     protected:
 
     private:
