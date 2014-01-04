@@ -1,6 +1,8 @@
 #include "ACKPacket.hpp"
 #include "../Opcode.hpp"
 #include "../ClientKnowledgeBase.hpp"
+#include "DataPacket.hpp"
+#include "../AnswerQueue.hpp"
 
 #include <vector>
 #include <cstring>
@@ -67,7 +69,11 @@ char* ACKPacket::toData() {
 }
 
 void ACKPacket::exec(std::string adresse) {
-    if (mNextBlock < 0) {
+    if (mNextBlock >= 0) {
         std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
+
+        IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());
+
+        AnswerQueue::get().sendToClient(packet, adresse);
     }
 }

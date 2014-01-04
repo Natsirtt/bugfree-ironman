@@ -72,3 +72,9 @@ std::vector<Association> KnowledgeBase::getClientsToSend(std::string filename) {
     // TODO
     return assocs;
 }
+
+std::vector<Association> KnowledgeBase::getClientsToAsk(std::string filename) {
+    std::vector<Association> assocs;
+    // TODO
+    return assocs;
+}

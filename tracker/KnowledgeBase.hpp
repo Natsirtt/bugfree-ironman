@@ -50,6 +50,8 @@ class KnowledgeBase { // TODO rendre threadSafe
          */
         std::vector<Association> getClientsToSend(std::string filename);
 
+        std::vector<Association> getClientsToAsk(std::string filename);
+
 	private:
 	    KnowledgeBase();
 

@@ -25,7 +25,7 @@ FileRequestPacket::FileRequestPacket(char* data, int size) {
     mFileName = std::string(filename);
 
     bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
-    mSend = ntohl(*send);
+    mSend = *send;
 
 }
 
@@ -51,8 +51,8 @@ char* FileRequestPacket::toData() {
     strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE - 1);
     filename[MAX_FILENAME_SIZE - 1] = '\0'; // Protection
 
-    int* send = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
-    *send = htonl(mSend);
+    bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    *send = mSend;
 
     return data;
 }
@@ -61,7 +61,12 @@ void FileRequestPacket::exec(std::string adresse) {
     Client& c = KnowledgeBase::get().getClient(adresse);
     c.alive();
 
-    std::vector<Association> assocs = KnowledgeBase::get().getClientsToSend(mFileName);
-    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, assocs);
+    std::vector<Association> assocs;
+    if (mSend) {
+        assocs = KnowledgeBase::get().getClientsToSend(mFileName);
+    } else {
+        assocs = KnowledgeBase::get().getClientsToAsk(mFileName);
+    }
+    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, assocs);
     AnswerQueue::get().sendToClient(fap, adresse);
 }
