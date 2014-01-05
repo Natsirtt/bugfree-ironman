@@ -11,23 +11,24 @@
  #include "Defines.hpp"
  #include "AnswerQueue.hpp"
  #include <cstring>
+ #include <cstdlib>
 
 using namespace std;
 
 void help() {
     std::cout << "Erreur d'utilisation." << std::endl;
     std::cout << "  ./prog CLIENT|TRACKER [ip_tracker] [nb_threads]" << std::endl;
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char* argv[]) {
     try {
+        int port = TRACKER_PORT;
+        std::string trackerIP;
+        int nbThreads = THREAD_NUMBER;
         try {
-            bool client = false;
-            std::string trackerIP;
-            int nbThreads = THREAD_NUMBER;
-
             if ((argc > 1) && (strcmp(argv[1], "CLIENT") == 0)) {
-                client = true;
+                 port = CLIENT_PORT;
                 if (argc > 2) {
                     trackerIP = std::string(argv[2]);
                     if (argc > 3) {
@@ -36,14 +37,13 @@ int main(int argc, char* argv[]) {
                     }
                 }
             } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
-                client = false;
+                 port = TRACKER_PORT;
             } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
                 help();
             }
         } catch (...) {
             help();
         }
-
 
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
@@ -54,14 +54,20 @@ int main(int argc, char* argv[]) {
 
         // On genere les threads qui traiteront les operations
         std::vector<Thread> threads;
-        for (int i = 0; i < THREAD_NUMBER; ++i) {
+        for (int i = 0; i < nbThreads; ++i) {
             threads.push_back(Thread());
         }
 
         // On construit la socket principale de reception de packets
-        SocketUDP mainSocket("", TRACKER_PORT);
+        SocketUDP mainSocket("0.0.0.0", port);
 
         NetworkTranslator nt(&mainSocket);
+
+        if (port == TRACKER_PORT) {
+            std::cout << "Demarrage en mode Tracker sur le port : " << port << std::endl;
+        } else {
+            std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
+        }
 
         while (1) { // TODO Faire une condition d'arret propre
             IPacket* packet = NULL;
@@ -89,9 +95,9 @@ int main(int argc, char* argv[]) {
         OperationQueue::get().clear();
         AnswerQueue::get().stop();
     } catch(std::exception& e) {
-        std::cerr << "Une erreur est survenue : " << e.what() << std::endl;
+        std::cout << "Une erreur est survenue : " << e.what() << std::endl;
     } catch (...) {
-        std::cerr << "Une erreur inconnue est survenue : " << std::endl;
+        std::cout << "Une erreur inconnue est survenue : " << std::endl;
     }
 
     return 0;

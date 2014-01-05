@@ -52,8 +52,14 @@ void* answer_thread(void* arg) {
     SocketUDP answerSocket;
 
     while (1) { // TODO faire une condition d'arret avec join
-        AnswerQueue::Answer a = AnswerQueue::get().getNextAnswer();
-        answerSocket.write(a.adresse, a.port, a.packet->toData(), a.packet->getSize());
+        try {
+            AnswerQueue::Answer a = AnswerQueue::get().getNextAnswer();
+            answerSocket.write(a.adresse, a.port, a.packet->toData(), a.packet->getSize());
+        } catch(const std::exception& e) {
+            std::cout << "Une erreur est survenue dans un thread : " << e.what() << std::endl;
+        } catch (...) {
+            std::cout << "Une erreur est survenue dans un thread" << std::endl;
+        }
     }
     return NULL;
 }

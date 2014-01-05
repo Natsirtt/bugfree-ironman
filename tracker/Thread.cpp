@@ -20,9 +20,13 @@ void Thread::join() {
 
 void* traitement(void* arg) {
     while (1) { // Faire une condition d'arret qui prenne en compte le join
-        Operation op = OperationQueue::get().getNextOperation();
+        try {
+            Operation op = OperationQueue::get().getNextOperation();
 
-        op.getPacket()->exec(op.getAdresse());
+            op.getPacket()->exec(op.getAdresse());
+        } catch(const std::exception& e) {
+            std::cerr << "Une erreur est survenue dans un thread : " << e.what() << std::endl;
+        }
     }
     return NULL;
 }

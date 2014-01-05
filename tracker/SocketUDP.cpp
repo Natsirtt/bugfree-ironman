@@ -33,16 +33,26 @@ SocketUDP::SocketUDP() {
 }
 
 SocketUDP::SocketUDP(std::string adresse, int port) {
-    SocketUDP();
+	mSocket = socket(AF_INET, SOCK_DGRAM, 0);
+
+	if (mSocket == -1) {
+		perror("SocketUDP()");
+		throw std::runtime_error("Could not create new socket");
+	}
+
+	mLocal.name = "";
+	mLocal.ip = "";
+	mLocal.port = -1;
 
 	struct sockaddr_in in;
 	if (initSockAddr(adresse, port, &in) == -1) {
-		std::cerr << "Error at SocketUDP(std::string adresse, int port)";
+		std::cerr << "Error at SocketUDP(std::string adresse, int port)\n";
 		throw std::runtime_error("Erreur d'initialisation de l'adresse");
 	}
 
 	if (bind(mSocket, (struct sockaddr*) &in, sizeof(struct sockaddr_in)) == -1) {
 		perror("SocketUDP(std::string adresse, int port)");
+		std::cout << mSocket << std::endl;
 		throw std::runtime_error("Erreur lors du bind de la socket");
 	}
 
@@ -201,10 +211,14 @@ int SocketUDP::initSockAddr(std::string adresse, int port, struct sockaddr_in* i
     char service[10];
     sprintf(service, "%d", port);
     if ((s = getaddrinfo(adresse.c_str(), service, &hint, &res)) == -1) {
-        std::cerr << "getaddrinfo: %s\n" << gai_strerror(s);
+        std::cout << "getaddrinfo: " << gai_strerror(s) << std::endl;
         return -1;
     }
-    memcpy(in, res->ai_addr, res->ai_addrlen);
+    if (res == NULL) {
+        std::cout << "getaddrinfo: " << gai_strerror(s) << std::endl;
+        return -1;
+    }
+    memcpy(in, res->ai_addr, std::min(sizeof(struct sockaddr_in), (long unsigned int)res->ai_addrlen));
     freeaddrinfo(res);
     return 0;
 }
