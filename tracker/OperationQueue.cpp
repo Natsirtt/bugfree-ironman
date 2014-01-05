@@ -19,14 +19,19 @@ OperationQueue::OperationQueue() {
 
     mReadSem = semget(key, 1, IPC_CREAT | 0666);
     if (mReadSem == -1) {
+        perror("semget");
         throw std::runtime_error("Impossible de generer un semaphore");
     }
     if (semctl(mReadSem, 0, SETVAL, 0) == -1) {
+        perror("semctl");
         throw std::runtime_error("Erreur lors de l'initialisation d'un semaphore");
     }
 
     // Initialisation du mutex
-    pthread_mutex_init (&mModifyMutex, NULL);
+    if (pthread_mutex_init (&mModifyMutex, NULL) == -1) {
+        perror("pthread_mutex_init");
+        throw std::runtime_error("Erreur lors de l'initialisation d'un mutex");
+    }
 }
 
 Operation OperationQueue::getNextOperation() {
@@ -41,15 +46,24 @@ Operation OperationQueue::getNextOperation() {
 
     Operation op = mQueue.front();
 
-    pthread_mutex_lock(&mModifyMutex);
+    if (pthread_mutex_lock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_lock");
+        throw std::runtime_error("Erreur lors du lock d'un mutex");
+    }
     mQueue.pop();
-    pthread_mutex_unlock(&mModifyMutex);
+    if (pthread_mutex_unlock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_unlock");
+        throw std::runtime_error("Erreur lors du unlock d'un mutex");
+    }
 
     return op;
 }
 
 void OperationQueue::addOperation(Operation op) {
-    pthread_mutex_lock(&mModifyMutex);
+    if (pthread_mutex_lock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_lock");
+        throw std::runtime_error("Erreur lors du lock d'un mutex");
+    }
     mQueue.push(op);
 
     sembuf sop;
@@ -57,12 +71,18 @@ void OperationQueue::addOperation(Operation op) {
     sop.sem_op = 1;
     sop.sem_flg = 0;
     semop(mReadSem, &sop, 1);
-    pthread_mutex_unlock(&mModifyMutex);
+    if (pthread_mutex_unlock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_unlock");
+        throw std::runtime_error("Erreur lors du unlock d'un mutex");
+    }
 }
 
 
 void OperationQueue::clear() {
-    pthread_mutex_lock(&mModifyMutex);
+    if (pthread_mutex_lock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_lock");
+        throw std::runtime_error("Erreur lors du lock d'un mutex");
+    }
 
     while (!mQueue.empty()) {
         Operation op = mQueue.front();
@@ -70,6 +90,11 @@ void OperationQueue::clear() {
         mQueue.pop();
     }
 
-    semctl(mReadSem, 1, SETVAL, 0);
-    pthread_mutex_unlock(&mModifyMutex);
+    if (semctl(mReadSem, 0, SETVAL, 0) == -1) {
+        throw std::runtime_error("Erreur lors de la remise a 0 d'un semaphore");
+    }
+    if (pthread_mutex_unlock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_unlock");
+        throw std::runtime_error("Erreur lors du unlock d'un mutex");
+    }
 }

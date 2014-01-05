@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
  #include "File.hpp"
  #include "KnowledgeBase.hpp"
@@ -9,12 +10,41 @@
  #include "Thread.hpp"
  #include "Defines.hpp"
  #include "AnswerQueue.hpp"
+ #include <cstring>
 
 using namespace std;
 
+void help() {
+    std::cout << "Erreur d'utilisation." << std::endl;
+    std::cout << "  ./prog CLIENT|TRACKER [ip_tracker] [nb_threads]" << std::endl;
+}
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
+        try {
+            bool client = false;
+            std::string trackerIP;
+            int nbThreads = THREAD_NUMBER;
+
+            if ((argc > 1) && (strcmp(argv[1], "CLIENT") == 0)) {
+                client = true;
+                if (argc > 2) {
+                    trackerIP = std::string(argv[2]);
+                    if (argc > 3) {
+                        std::stringstream ss(argv[3]);
+                        ss >> nbThreads;
+                    }
+                }
+            } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
+                client = false;
+            } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
+                help();
+            }
+        } catch (...) {
+            help();
+        }
+
+
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
 
@@ -34,7 +64,6 @@ int main() {
         NetworkTranslator nt(&mainSocket);
 
         while (1) { // TODO Faire une condition d'arret propre
-            std::cout << "while" << std::endl;
             IPacket* packet = NULL;
             std::string adresse;
             int port = -1;
@@ -61,6 +90,8 @@ int main() {
         AnswerQueue::get().stop();
     } catch(std::exception& e) {
         std::cerr << "Une erreur est survenue : " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Une erreur inconnue est survenue : " << std::endl;
     }
 
     return 0;

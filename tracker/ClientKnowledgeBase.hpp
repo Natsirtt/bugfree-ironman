@@ -26,8 +26,8 @@ class ClientKnowledgeBase {
         void addPartition(std::string filename, int partitionNb);
         void beginPartition(std::string filename, int partitionNb);
 
-        void getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize);
-        void setBlockData(std::string filename, int partition, int block, char* data);
+        std::vector<char> getBlockData(std::string filename, int partition, int block);
+        void setBlockData(std::string filename, int partition, int block, std::vector<char> data);
 
         int getNextFreeBlockNumber(std::string filename, int partition);
 
@@ -44,7 +44,7 @@ class ClientKnowledgeBase {
         void addBlock(std::string filename, int partitionNb, int block);
 
         std::string blocksMapKey(std::string filename, int partitionNb);
-        long long computeFileOffset(std::string filename, int partitionNb, int block);
+        long long computeFileOffset(std::string filename, int partitionNb, int block, bool completedFile);
 
         //Association filename -> liste des partitions possédées
         std::map<std::string, std::vector<int> > mPartitions;

@@ -1,13 +1,15 @@
+
 #include "ClientKnowledgeBase.hpp"
 
 #include <climits>
 #include <stdexcept>
 #include <sstream>
-#include <ofstream>
-#include <ifstream>
+#include <fstream>
+//#include <ofstream>
+//#include <ifstream>
 #include <string.h>
 
-#include "defines.hpp"
+#include "Defines.hpp"
 
 ClientKnowledgeBase::ClientKnowledgeBase() {
     pthread_mutex_init (&mMutex, NULL);
@@ -28,9 +30,9 @@ void ClientKnowledgeBase::unlock() {
 void ClientKnowledgeBase::lock(std::string filename) {
     lock();
     pthread_mutex_t mutex = mFilesMutexes[filename];
-    if (mutex == (pthread_mutex_t) 0) {
+    /*if (mutex == (pthread_mutex_t) 0) {
         mFilesMutexes[filename] = PTHREAD_MUTEX_INITIALIZER;
-    }
+    }*/
     if (pthread_mutex_lock(&mFilesMutexes[filename]) != 0) {
         throw std::runtime_error("Erreur lors du lock du mutex pour le fichier " + filename);
     }
@@ -40,12 +42,12 @@ void ClientKnowledgeBase::lock(std::string filename) {
 void ClientKnowledgeBase::unlock(std::string filename) {
     lock();
     pthread_mutex_t mutex = mFilesMutexes[filename];
-    if (mutex == (phtread_mutex_t) 0) {
+    /*if (mutex == (phtread_mutex_t) 0) {
         throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename + " : mutex inexistant");
     }
     if (pthread_mutex_unlock(&mFilesMutexes) != 0) {
         throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename);
-    }
+    }*/
     unlock();
 }
 
@@ -145,16 +147,19 @@ void ClientKnowledgeBase::beginPartition(std::string filename, int partitionNb) 
     unlock();
 }
 
-void ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize) {
+std::vector<char> ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block) {
+    // TODO
+    int bufferSize;
+    char* buffer;
     if (bufferSize < BLOCK_SIZE) {
         throw std::runtime_error("Buffer trop petit pour getBLockData");
     }
     if (!hasBlock(filename, partition, block)) {
         memset(buffer, 0, BLOCK_SIZE);
-        return;
+        return std::vector<char>();
     }
     lock(filename);
-    std::ifstream file = std::ifstream(FILES_PATH + filename);
+    std::ifstream file((std::string(FILES_PATH) + filename).c_str(), std::ifstream::binary);
 
     long long offset = computeFileOffset(filename, partition, block, true);
     file.seekg(0, file.end);
@@ -168,25 +173,24 @@ void ClientKnowledgeBase::getBlockData(std::string filename, int partition, int 
 
     file.close();
 
-    unlock(filename);
+    unlock(filename); // TODO
+
+    return std::vector<char>();
 }
 
-void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, char* data, int bufferSize) {
-    if (bufferSize < BLOCK_SIZE) {
-        throw std::runtime_error("Buffer trop petit pour setBLockData");
-    }
+void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, std::vector<char> data) {
     lock(filename);
-    std::ofstream file = std::ofstream(FILES_PATH + filename);
+    std::fstream file((std::string(FILES_PATH) + filename).c_str());
 
     long long offset = computeFileOffset(filename, partition, block, false);
-    file.seekg(0, file.end);
-    long long length = file.tellg();
+    file.seekp(0, file.end);
+    long long length = file.tellp();
     if (offset > length) {
         throw std::runtime_error("Offset de lecture supérieur à la taille du fichier");
     }
-    file.seekg(offset, file.beg);
+    file.seekp(offset, file.beg);
 
-    file.write(buffer, BLOCK_SIZE);
+    file.write(data.data(), data.size());
 
     file.close();
 

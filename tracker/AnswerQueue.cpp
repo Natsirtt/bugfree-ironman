@@ -38,8 +38,10 @@ AnswerQueue::AnswerQueue() : mThread(-1)  {
     }
 
     // Initialisation du mutex
-    pthread_mutex_init (&mModifyMutex, NULL);
-
+    if (pthread_mutex_init (&mModifyMutex, NULL) == -1) {
+        perror("pthread_mutex_init");
+        throw std::runtime_error("Erreur lors de l'initialisation d'un mutex");
+    }
 }
 
 AnswerQueue::~AnswerQueue() {
@@ -81,9 +83,15 @@ AnswerQueue::Answer AnswerQueue::getNextAnswer() {
 
     Answer ans = mAnswers.front();
 
-    pthread_mutex_lock(&mModifyMutex);
+    if (pthread_mutex_lock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_lock");
+        throw std::runtime_error("Erreur lors du lock d'un mutex");
+    }
     mAnswers.pop();
-    pthread_mutex_unlock(&mModifyMutex);
+    if (pthread_mutex_unlock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_unlock");
+        throw std::runtime_error("Erreur lors du unlock d'un mutex");
+    }
 
     return ans;
 }
@@ -94,7 +102,10 @@ void AnswerQueue::send(IPacket* packet, std::string& adresse, int port) {
     a.adresse = adresse;
     a.port = port;
 
-    pthread_mutex_lock(&mModifyMutex);
+    if (pthread_mutex_lock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_lock");
+        throw std::runtime_error("Erreur lors du lock d'un mutex");
+    }
 
     mAnswers.push(a);
 
@@ -102,8 +113,16 @@ void AnswerQueue::send(IPacket* packet, std::string& adresse, int port) {
     sop.sem_num = 0;
     sop.sem_op = 1;
     sop.sem_flg = 0;
-    semop(mReadSem, &sop, 1);
-    pthread_mutex_unlock(&mModifyMutex);
+    if (semop(mReadSem, &sop, 1) == -1) {
+        perror("semop");
+        throw std::runtime_error("Erreur lors de l'incrementation d'un semaphore");
+    }
+
+    if (pthread_mutex_unlock(&mModifyMutex) == -1) {
+        perror("pthread_mutex_unlock");
+        throw std::runtime_error("Erreur lors du unlock d'un mutex");
+    }
+
 }
 
 void AnswerQueue::sendToClient(IPacket* packet, std::string& adresse) {
