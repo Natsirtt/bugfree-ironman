@@ -25,6 +25,7 @@ void ClientKnowledgeBase::unlock() {
 }
 
 void ClientKnowledgeBase::lock(std::string filename) {
+    lock();
     pthread_mutex_t mutex = mFilesMutexes[filename];
     if (mutex == (pthread_mutex_t) 0) {
         mFilesMutexes[filename] = PTHREAD_MUTEX_INITIALIZER;
@@ -32,9 +33,11 @@ void ClientKnowledgeBase::lock(std::string filename) {
     if (pthread_mutex_lock(&mFilesMutexes[filename]) != 0) {
         throw std::runtime_error("Erreur lors du lock du mutex pour le fichier " + filename);
     }
+    unlock();
 }
 
 void ClientKnowledgeBase::unlock(std::string filename) {
+    lock();
     pthread_mutex_t mutex = mFilesMutexes[filename];
     if (mutex == (phtread_mutex_t) 0) {
         throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename + " : mutex inexistant");
@@ -42,6 +45,7 @@ void ClientKnowledgeBase::unlock(std::string filename) {
     if (pthread_mutex_unlock(&mFilesMutexes) != 0) {
         throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename);
     }
+    unlock();
 }
 
 std::vector<int> ClientKnowledgeBase::getPartitions(std::string filename) {
