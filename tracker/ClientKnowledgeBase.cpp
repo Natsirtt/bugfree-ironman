@@ -1,27 +1,52 @@
 #include "ClientKnowledgeBase.hpp"
+
 #include <stdexcept>
 #include <sstream>
+#include <ofstream>
+#include <ifstream>
+#include <string.h>
+
+#include "defines.hpp"
 
 ClientKnowledgeBase::ClientKnowledgeBase() {
     pthread_mutex_init (&mMutex, NULL);
 }
 
 void ClientKnowledgeBase::lock() {
-    if (pthread_mutex_lock(&mMutex) !=0) {
+    if (pthread_mutex_lock(&mMutex) != 0) {
         throw std::runtime_error("Erreur lors du lock du mutex de la ClientKnowledgeBase");
     }
 }
 
 void ClientKnowledgeBase::unlock() {
-    if (pthread_mutex_unlock(&mMutex) !=0) {
-        throw std::runtime_error("Erreur lors du unlock du mutex de la ClientKnowledgeBase");
+    if (pthread_mutex_unlock(&mMutex) != 0) {
+        throw std::runtime_error("Erreur lors de l'unlock du mutex de la ClientKnowledgeBase");
+    }
+}
+
+void ClientKnowledgeBase::lock(std::string filename) {
+    pthread_mutex_t mutex = mFilesMutexes[filename];
+    if (mutex == (pthread_mutex_t) 0) {
+        mFilesMutexes[filename] = PTHREAD_MUTEX_INITIALIZER;
+    }
+    if (pthread_mutex_lock(&mFilesMutexes[filename]) != 0) {
+        throw std::runtime_error("Erreur lors du lock du mutex pour le fichier " + filename);
+    }
+}
+
+void ClientKnowledgeBase::unlock(std::string filename) {
+    pthread_mutex_t mutex = mFilesMutexes[filename];
+    if (mutex == (phtread_mutex_t) 0) {
+        throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename + " : mutex inexistant");
+    }
+    if (pthread_mutex_unlock(&mFilesMutexes) != 0) {
+        throw new std::runtime_error("Erreur lors de l'unlock du mutex pour le fichier " + filename);
     }
 }
 
 std::vector<int> ClientKnowledgeBase::getPartitions(std::string filename) {
     lock();
     std::vector<int> res = mPartitions[filename];
-    pthread_mutex_unlock(&mMutex);
     unlock();
     return res;
 }
@@ -84,16 +109,66 @@ void ClientKnowledgeBase::addBlock(std::string filename, int partitionNb, int bl
     unlock();
 }
 
-std::vector<char> ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block) {
-    // TODO
-    return std::vector<char>();
+void ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize) {
+    if (bufferSize < BLOCK_SIZE) {
+        throw std::runtime_error("Buffer trop petit pour getBLockData");
+    }
+    if (!hasBlock(filename, partition, block)) {
+        memset(buffer, 0, BLOCK_SIZE);
+        return;
+    }
+    lock(filename);
+    std::ifstream file = std::ifstream(FILES_PATH + filename);
+
+    long long offset = partition * block * BLOCK_SIZE;
+    file.seekg(0, file.end);
+    long long length = file.tellg();
+    if (offset > length) {
+        throw std::runtime_error("Offset de lecture supérieur à la taille du fichier");
+    }
+    file.seekg(offset, file.beg);
+
+    file.read(buffer, BLOCK_SIZE);
+
+    file.close();
+
+    unlock(filename);
 }
 
-void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, std::vector<char> data) {
-    // TODO
+void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, char* data, int bufferSize) {
+    if (bufferSize < BLOCK_SIZE) {
+        throw std::runtime_error("Buffer trop petit pour setBLockData");
+    }
+    lock(filename);
+    std::ofstream file = std::ofstream(FILES_PATH + filename);
+
+    long long offset = partition * block * BLOCK_SIZE;
+    file.seekg(0, file.end);
+    long long length = file.tellg();
+    if (offset > length) {
+        throw std::runtime_error("Offset de lecture supérieur à la taille du fichier");
+    }
+    file.seekg(offset, file.beg);
+
+    file.write(buffer, BLOCK_SIZE);
+
+    file.close();
+
+    addBlock(filename, partition, block);
+
+    unlock(filename);
 }
 
 int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partition) {
-    // TODO
-    return 0;
+    std::vector<int> blocks = mBlocks[blocksMapKey(filename, partition)];
+    int b = -1;
+    lock();
+    for (unsigned int i = 0; i < blocks.size(); ++i) {
+        if (b + 1 != blocks.at(i)) {
+            unlock();
+            return b + 1;
+        }
+    }
+    unlock();
+    return -1;
 }

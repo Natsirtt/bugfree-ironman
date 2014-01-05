@@ -22,10 +22,9 @@ class ClientKnowledgeBase {
         bool hasBlock(std::string filename, int partitionNb, int block);
 
         void addPartition(std::string filename, int partitionNb);
-        void addBlock(std::string filename, int partitionNb, int block);
 
-        std::vector<char> getBlockData(std::string filename, int partition, int block);
-        void setBlockData(std::string filename, int partition, int block, std::vector<char> data);
+        void getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize);
+        void setBlockData(std::string filename, int partition, int block, char* data);
 
         int getNextFreeBlockNumber(std::string filename, int partition);
 
@@ -36,6 +35,11 @@ class ClientKnowledgeBase {
 
         void lock();
         void unlock();
+        void lock(std::string filename);
+        void unlock(std::string filename);
+
+        void addBlock(std::string filename, int partitionNb, int block);
+
         std::string blocksMapKey(std::string filename, int partitionNb);
 
         //Association filename -> liste des partitions possédées
@@ -44,6 +48,8 @@ class ClientKnowledgeBase {
         std::map<std::string, std::vector<int> > mBlocks;
         //Mutex pour rendre l'instance thread safe
         pthread_mutex_t mMutex;
+        //Mapping filename -> mutex de protection
+        std::map<std::string, pthread_mutex_t> mFilesMutexes;
 };
 
 
