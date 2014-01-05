@@ -9,9 +9,10 @@
 
 //La taille d'un bloc
 #define BLOCK_SIZE 4096
+#define PARTITION_SIZE BLOCK_SIZE * 256
 
 //Le répertoire de téléchargement des fichiers
-#define FILES_PATH "downloads/"
+#define FILES_PATH "files/"
 
 
 #endif // DEFINES_HPP

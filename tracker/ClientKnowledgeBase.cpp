@@ -1,5 +1,6 @@
 #include "ClientKnowledgeBase.hpp"
 
+#include <climits>
 #include <stdexcept>
 #include <sstream>
 #include <ofstream>
@@ -48,6 +49,13 @@ void ClientKnowledgeBase::unlock(std::string filename) {
     unlock();
 }
 
+std::vector<int> ClientKnowledgeBase::getPartitionsInProgress(std::string filename) {
+    lock();
+    std::vector<int> res = mPartitionsInProgress[filename];
+    unlock();
+    return res;
+}
+
 std::vector<int> ClientKnowledgeBase::getPartitions(std::string filename) {
     lock();
     std::vector<int> res = mPartitions[filename];
@@ -75,7 +83,23 @@ bool ClientKnowledgeBase::hasPartition(std::string filename, int partitionNb) {
     std::vector<int> partitions = getPartitions(filename);
     for (unsigned int i = 0; i < partitions.size(); ++i) {
         if (partitionNb == partitions.at(i)) {
-                unlock();
+            unlock();
+            return true;
+        }
+    }
+    unlock();
+    return false;
+}
+
+bool ClientKnowledgeBase::isGettingPartition(std::string filename, int partitionNb) {
+    if (hasPartition(filename, partitionNb)) {
+        return false;
+    }
+    lock();
+    std::vector<int> parts = getPartitionsInProgress(filename);
+    for (unsigned int i = 0; i < parts.size(); ++i) {
+        if (partitionNb == parts.at(i)) {
+            unlock();
             return true;
         }
     }
@@ -113,6 +137,14 @@ void ClientKnowledgeBase::addBlock(std::string filename, int partitionNb, int bl
     unlock();
 }
 
+void ClientKnowledgeBase::beginPartition(std::string filename, int partitionNb) {
+    lock();
+    if (!isGettingPartition(filename, partitionNb)) {
+        mPartitionsInProgress[filename].push_back(partitionNb);
+    }
+    unlock();
+}
+
 void ClientKnowledgeBase::getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize) {
     if (bufferSize < BLOCK_SIZE) {
         throw std::runtime_error("Buffer trop petit pour getBLockData");
@@ -124,7 +156,7 @@ void ClientKnowledgeBase::getBlockData(std::string filename, int partition, int 
     lock(filename);
     std::ifstream file = std::ifstream(FILES_PATH + filename);
 
-    long long offset = partition * block * BLOCK_SIZE;
+    long long offset = computeFileOffset(filename, partition, block, true);
     file.seekg(0, file.end);
     long long length = file.tellg();
     if (offset > length) {
@@ -146,7 +178,7 @@ void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int 
     lock(filename);
     std::ofstream file = std::ofstream(FILES_PATH + filename);
 
-    long long offset = partition * block * BLOCK_SIZE;
+    long long offset = computeFileOffset(filename, partition, block, false);
     file.seekg(0, file.end);
     long long length = file.tellg();
     if (offset > length) {
@@ -164,9 +196,9 @@ void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int 
 }
 
 int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partition) {
+    lock();
     std::vector<int> blocks = mBlocks[blocksMapKey(filename, partition)];
     int b = -1;
-    lock();
     for (unsigned int i = 0; i < blocks.size(); ++i) {
         if (b + 1 != blocks.at(i)) {
             unlock();
@@ -175,4 +207,27 @@ int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partit
     }
     unlock();
     return -1;
+}
+
+long long ClientKnowledgeBase::computeFileOffset(std::string filename, int partitionNb, int block, bool completedFile) {
+    int firstPartition = INT_MAX;
+    //int lastPartition = -1;
+
+    if (completedFile) {
+        return partitionNb * PARTITION_SIZE + block * BLOCK_SIZE;
+    }
+
+    lock();
+
+    std::vector<int> parts = mPartitionsInProgress[filename];
+    for (unsigned int i = 0; i < parts.size(); ++i) {
+        if (parts.at(i) < firstPartition) {
+            firstPartition = parts.at(i);
+        }
+        //if (parts.at(i) > lastPartition) {
+        //    lastPartition = parts.at(i);
+        //}
+    }
+    unlock();
+    return (partitionNb - firstPartition) * PARTITION_SIZE + block * BLOCK_SIZE;
 }

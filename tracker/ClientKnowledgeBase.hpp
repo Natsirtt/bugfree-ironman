@@ -17,11 +17,14 @@ class ClientKnowledgeBase {
 
         std::vector<int> getPartitions(std::string filename);
         std::vector<int> getBlocks(std::string filename, int partitionNb);
+        std::vector<int> getPartitionsInProgress(std::string filename);
 
         bool hasPartition(std::string filename, int partitionNb);
         bool hasBlock(std::string filename, int partitionNb, int block);
+        bool isGettingPartition(std::string filename, int partitionNb);
 
         void addPartition(std::string filename, int partitionNb);
+        void beginPartition(std::string filename, int partitionNb);
 
         void getBlockData(std::string filename, int partition, int block, char* buffer, int bufferSize);
         void setBlockData(std::string filename, int partition, int block, char* data);
@@ -41,9 +44,12 @@ class ClientKnowledgeBase {
         void addBlock(std::string filename, int partitionNb, int block);
 
         std::string blocksMapKey(std::string filename, int partitionNb);
+        long long computeFileOffset(std::string filename, int partitionNb, int block);
 
         //Association filename -> liste des partitions possédées
         std::map<std::string, std::vector<int> > mPartitions;
+        //idem mais partitions en cours de récupération
+        std::map<std::string, std::vector<int> > mPartitionsInProgress;
         //Association filename + partitionNb -> blocks reçus
         std::map<std::string, std::vector<int> > mBlocks;
         //Mutex pour rendre l'instance thread safe
