@@ -17,7 +17,6 @@
 //Le répertoire de téléchargement des fichiers
 #define FILES_PATH "files/"
 
-
 class State {
     public:
         static State& get() {
@@ -54,6 +53,5 @@ class State {
 
         bool mRunning;
 };
-
 
 #endif // DEFINES_HPP
