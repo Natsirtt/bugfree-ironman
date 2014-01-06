@@ -25,6 +25,8 @@ class ClientKnowledgeBase {
         bool hasBlock(std::string filename, int partitionNb, int block);
         bool isPartitionInProgress(std::string filename, int partitionNb);
 
+        void setFileSize(std::string filename, long long fileSize);
+
         void addPartition(std::string filename, int partitionNb);
         void beginPartition(std::string filename, int partitionNb);
 
@@ -32,6 +34,9 @@ class ClientKnowledgeBase {
         void setBlockData(std::string filename, int partition, int block, std::vector<char> data);
 
         int getNextFreeBlockNumber(std::string filename, int partition);
+        long long getFileSize(std::string filename);
+
+        void shutdown();
 
     protected:
 

@@ -63,4 +63,15 @@ int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partit
     return mFiles[filename].getNextFreeBlockNumber(partition);
 }
 
+long long ClientKnowledgeBase::getFileSize(std::string filename) {
+    if (mFiles[filename].isCorrectFile()) {
+        return mFiles[filename].getSize();
+    }
+    return -1;
+}
 
+void ClientKnowledgeBase::shutdown() {
+    for (std::map<std::string, ClientFile>::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
+        it->second.serialize();
+    }
+}

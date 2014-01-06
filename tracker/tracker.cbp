@@ -40,6 +40,8 @@
 		<Unit filename="Association.hpp" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.hpp" />
+		<Unit filename="ClientFile.cpp" />
+		<Unit filename="ClientFile.hpp" />
 		<Unit filename="ClientKnowledgeBase.cpp" />
 		<Unit filename="ClientKnowledgeBase.hpp" />
 		<Unit filename="Defines.hpp" />

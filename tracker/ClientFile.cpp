@@ -3,10 +3,17 @@
 #include <fstream>
 #include <stdexcept>
 #include <climits>
+#include <cstdio>
+#include <unistd.h>
+
 #include "Defines.hpp"
 
 ClientFile::ClientFile() : mFilename(""), mFileSize(0) {
 
+}
+
+bool ClientFile::isCorrectFile() {
+    return mFilename != "";
 }
 
 ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(filename), mFileSize(fileSize)
@@ -189,6 +196,10 @@ bool ClientFile::isPartitionInProgress(int part) {
     return isNthBitSet(mPartitionsInProgress, part);
 }
 
+bool ClientFile::isPartitionAcquiredOrInProgress(int part) {
+    return hasPartition(part) || isPartitionAcquiredOrInProgress(part);
+}
+
 void ClientFile::addBlock(int part, int block) {
     if (!hasBlock(part, block)) {
         setNthBit(mBlocks[part], block);
@@ -237,7 +248,59 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
 
 void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     lock();
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str());
+    if (hasBlock(part, block)) {
+        return;
+    }
+
+    if (!isPartitionAcquiredOrInProgress(part)) {
+        int firstPart = getFirstUsedBit(mPartitions);
+        int lastPart = getLastUsedBit(mPartitions);
+        if (!((firstPart < part) && (part < lastPart))) {
+            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+            file.seekg(0, file.end);
+            long long currentSize = file.tellg();
+            file.seekg(0, file.beg);
+
+            long long gap = 0;
+            if (firstPart > part) {
+                gap = (firstPart - part) * BLOCK_SIZE;
+                std::string newFilePath = std::string(FILES_PATH) + mFilename + ".tmp";
+                std::fstream newFile(newFilePath.c_str(), std::fstream::binary);
+                if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
+                    perror("Erreur au truncate");
+                    throw std::runtime_error("Erreur de truncate");
+                }
+
+                newFile.seekp(gap, newFile.beg);
+
+                char buffer[1024 * 1024];
+                while (!file.eof()) {
+                    file.read(buffer, 1024 * 1024);
+                    newFile.write(buffer, 1024 * 1024);
+                }
+                file.close();
+                newFile.close();
+                if (remove((std::string(FILES_PATH) + mFilename).c_str()) == -1) {
+                    perror("Error of remove");
+                    throw std::runtime_error("Error of remove");
+                }
+                if (rename(newFilePath.c_str(), (std::string(FILES_PATH) + mFilename).c_str()) == -1) {
+                    perror("Error of rename");
+                    throw std::runtime_error("Error of rename");
+                }
+
+            } else {
+                gap = (part - lastPart) * BLOCK_SIZE;
+                if (truncate((std::string(FILES_PATH) + mFilename).c_str(), currentSize + gap) == -1) {
+                    perror("Erreur au truncate");
+                    throw std::runtime_error("Erreur de truncate");
+                }
+            }
+        }
+        beginPartition(part);
+    }
+
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
 
     long long offset = computeFileOffset(part, block);
 
@@ -255,16 +318,47 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     unlock();
 }
 
-int ClientFile::getNextFreeBlockNumber(int part) {
-    lock();
-    std::vector<char> bitmap = mBlocks[part];
+int ClientFile::getFirstFreeBit(std::vector<char> bitmap) {
     for (unsigned int i = 0; i < bitmap.size() * sizeof(char); ++i) {
         if (!isNthBitSet(bitmap, i)) {
             return i;
         }
     }
-    unlock();
     return -1;
+}
+
+int ClientFile::getFirstUsedBit(std::vector<char> bitmap) {
+    for (unsigned int i = 0; i < bitmap.size() * sizeof(char); ++i) {
+        if (isNthBitSet(bitmap, i)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int ClientFile::getLastFreeBit(std::vector<char> bitmap) {
+    for (unsigned int i = bitmap.size() * sizeof(char); i > 0; ++i) {
+        if (!isNthBitSet(bitmap, i)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int ClientFile::getLastUsedBit(std::vector<char> bitmap) {
+    for (unsigned int i = bitmap.size() * sizeof(char); i > 0; ++i) {
+        if (isNthBitSet(bitmap, i)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int ClientFile::getNextFreeBlockNumber(int part) {
+    lock();
+    int res = getFirstFreeBit(mBlocks[part]);
+    unlock();
+    return res;
 }
 
 long long ClientFile::computeFileOffset(int partitionNb, int block) {
@@ -279,4 +373,11 @@ long long ClientFile::computeFileOffset(int partitionNb, int block) {
     }
     unlock();
     return (partitionNb - firstPartition) * PARTITION_SIZE + block * BLOCK_SIZE;
+}
+
+long long ClientFile::getSize() {
+    lock();
+    long long res = mFileSize;
+    unlock();
+    return res;
 }
