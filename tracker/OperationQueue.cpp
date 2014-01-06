@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <sys/sem.h>
 #include <cstdio>
+#include <errno.h>
+#include <stdexcept>
 
 #define KEY_FILE "opqueue"
 #define KEY_ID 1
@@ -35,11 +37,12 @@ OperationQueue::OperationQueue() {
 }
 
 Operation OperationQueue::getNextOperation() {
-    sembuf sop;
-    sop.sem_num = 0;
-    sop.sem_op = -1;
-    sop.sem_flg = 0;
-    if (semop(mReadSem, &sop, 1) == -1) {
+    sembuf sop = {0, -1, 0};
+    struct timespec timeout = {10, 0};
+    if (semtimedop(mReadSem, &sop, 1, &timeout) == -1) {
+        if (errno == EAGAIN) {
+            throw std::logic_error("Timeout");
+        }
         perror("semop");
         throw std::runtime_error("Erreur lors de la decrementation d'un semaphore");
     }

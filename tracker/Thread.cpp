@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "OperationQueue.hpp"
+#include "Defines.hpp"
 
 void* traitement(void* arg);
 
@@ -19,14 +20,17 @@ void Thread::join() {
 
 
 void* traitement(void* arg) {
-    while (1) { // Faire une condition d'arret qui prenne en compte le join
+    while (State::get().isRunning()) { // Faire une condition d'arret qui prenne en compte le join
         try {
             Operation op = OperationQueue::get().getNextOperation();
 
             op.getPacket()->exec(op.getAdresse());
+        } catch(const std::logic_error& e) {
+            // RIEN
         } catch(const std::exception& e) {
             std::cerr << "Une erreur est survenue dans un thread : " << e.what() << std::endl;
         }
     }
+    std::cout << "Arret d'un thread" << std::endl;
     return NULL;
 }

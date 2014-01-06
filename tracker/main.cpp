@@ -45,6 +45,8 @@ int main(int argc, char* argv[]) {
             help();
         }
 
+        State::get();
+
         // Un appel à la file d'opérations (l'oblige à se constuire si pas encore fait)
         OperationQueue::get();
 
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
         }
 
-        while (1) { // TODO Faire une condition d'arret propre
+        while (State::get().isRunning()) {
             IPacket* packet = NULL;
             std::string adresse;
             int port = -1;
@@ -86,9 +88,11 @@ int main(int argc, char* argv[]) {
             // On ajoute l'opération à la file des opérations
             OperationQueue::get().addOperation(op);
         }
-
         // On nettoie toutes les données
+        std::cout << "Arret de la socket d'ecoute\n";
         mainSocket.close();
+
+        std::cout << "Arret des threads de traitement (Attente du timeout)\n";
         for (unsigned int i = 0; i < threads.size(); ++i) {
             threads[i].join();
         }

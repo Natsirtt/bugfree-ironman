@@ -48,6 +48,7 @@ class AnswerQueue {
         pthread_t mThread;
         pthread_mutex_t mModifyMutex;
         int mReadSem;
+        bool mRunning;
 };
 
 #endif

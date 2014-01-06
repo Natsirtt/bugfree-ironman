@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <sys/sem.h>
 #include <cstdio>
+#include <errno.h>
 
 #define KEY_FILE "opqueue"
 #define KEY_ID 2
@@ -19,7 +20,7 @@ union semun {
     struct seminfo* __buf;
 };
 
-AnswerQueue::AnswerQueue() : mThread(-1)  {
+AnswerQueue::AnswerQueue() : mThread(-1), mRunning(false)  {
     // Initialisation du semaphore
     key_t key = ftok(KEY_FILE, KEY_ID);
     if (key == -1) {
@@ -38,23 +39,28 @@ AnswerQueue::AnswerQueue() : mThread(-1)  {
     }
 
     // Initialisation du mutex
-    if (pthread_mutex_init (&mModifyMutex, NULL) == -1) {
+    if (pthread_mutex_init(&mModifyMutex, NULL) == -1) {
         perror("pthread_mutex_init");
         throw std::runtime_error("Erreur lors de l'initialisation d'un mutex");
     }
 }
 
 AnswerQueue::~AnswerQueue() {
-    // TODO des-initialiser les mutex, etc...
+    stop();
+    pthread_mutex_destroy(&mModifyMutex);
+
+    semctl(mReadSem, 0, IPC_RMID);
 }
 
 void* answer_thread(void* arg) {
     SocketUDP answerSocket;
 
-    while (1) { // TODO faire une condition d'arret avec join
+    while (State::get().isRunning()) {
         try {
             AnswerQueue::Answer a = AnswerQueue::get().getNextAnswer();
             answerSocket.write(a.adresse, a.port, a.packet->toData(), a.packet->getSize());
+        } catch(const std::logic_error& e) {
+            // RIEN
         } catch(const std::exception& e) {
             std::cout << "Une erreur est survenue dans un thread : " << e.what() << std::endl;
         } catch (...) {
@@ -66,23 +72,32 @@ void* answer_thread(void* arg) {
 
 
 void AnswerQueue::start() {
-    if (pthread_create(&mThread, NULL, answer_thread, NULL) != 0) {
-        throw std::runtime_error("Erreur lors de la creation d'un thread");
+    if (!mRunning) {
+        if (pthread_create(&mThread, NULL, answer_thread, NULL) != 0) {
+            throw std::runtime_error("Erreur lors de la creation d'un thread");
+        }
+        mRunning = true;
     }
 }
 
 void AnswerQueue::stop() {
-    if (pthread_join(mThread, NULL) != 0) {
-        throw std::runtime_error("Erreur lors de l'arret d'un thread");
+    if (mRunning) {
+        if (pthread_join(mThread, NULL) != 0) {
+            throw std::runtime_error("Erreur lors de l'arret d'un thread");
+        }
+        mRunning = false;
     }
 }
 
 AnswerQueue::Answer AnswerQueue::getNextAnswer() {
     sembuf sop = {0, -1, SEM_UNDO};
-    //sop.sem_num = 0;
-    //sop.sem_op = -1;
-    //sop.sem_flg = SEM_UNDO;
-    if (semop(mReadSem, &sop, 1) == -1) {
+    struct timespec timeout;
+    timeout.tv_sec = 10;
+    timeout.tv_nsec = 0;
+    if (semtimedop(mReadSem, &sop, 1, &timeout) == -1) {
+        if (errno == EAGAIN) {
+            throw std::logic_error("Timeout");
+        }
         perror("semop");
         throw std::runtime_error("Erreur lors de la decrementation d'un semaphore");
     }
