@@ -77,5 +77,11 @@ void ClientKnowledgeBase::shutdown() {
 }
 
 std::vector<ClientFile*> ClientKnowledgeBase::getFiles() {
-    // TODO
+    std::vector<ClientFile*> res;
+    lock();
+    for (std::map<std::string, ClientFile>::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
+        res.push_back(&(it->second));
+    }
+    unlock();
+    return res;
 }

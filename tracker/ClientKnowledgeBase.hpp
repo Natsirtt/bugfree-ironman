@@ -50,8 +50,6 @@ class ClientKnowledgeBase {
 
         void lock();
         void unlock();
-        void lock(std::string filename);
-        void unlock(std::string filename);
 
         void addBlock(std::string filename, int partitionNb, int block);
 
