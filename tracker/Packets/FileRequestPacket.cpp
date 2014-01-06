@@ -66,18 +66,21 @@ char* FileRequestPacket::toData() {
 void FileRequestPacket::exec(std::string adresse) {
     Client& c = KnowledgeBase::get().getClient(adresse);
     c.alive();
-
-    std::vector<Association> assocs;
-    int fileSize = 0;
-    if (mSend) {
-        File f(mFileName, mFilesize, mFilesize / PARTITION_SIZE);
-        KnowledgeBase::get().addFile(f);
-        assocs = KnowledgeBase::get().getClientsToSend(mFileName);
-    } else {
-        File& f = KnowledgeBase::get().getFile(mFileName);
-        fileSize = f.getSize();
-        assocs = f.getClientsToAsk();
+    try {
+        std::vector<Association> assocs;
+        int fileSize = 0;
+        if (mSend) {
+            File f(mFileName, mFilesize, mFilesize / PARTITION_SIZE);
+            KnowledgeBase::get().addFile(f);
+            assocs = KnowledgeBase::get().getClientsToSend(mFileName);
+        } else {
+            File& f = KnowledgeBase::get().getFile(mFileName);
+            fileSize = f.getSize();
+            assocs = f.getClientsToAsk();
+        }
+        FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, fileSize, assocs);
+        AnswerQueue::get().sendToClient(fap, adresse);
+    } catch (...) {
+        std::cout << "Erreur d'une requete du client : " << adresse << std::endl;
     }
-    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, fileSize, assocs);
-    AnswerQueue::get().sendToClient(fap, adresse);
 }

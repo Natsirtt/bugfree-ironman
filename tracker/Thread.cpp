@@ -31,6 +31,5 @@ void* traitement(void* arg) {
             std::cerr << "Une erreur est survenue dans un thread : " << e.what() << std::endl;
         }
     }
-    std::cout << "Arret d'un thread" << std::endl;
     return NULL;
 }
