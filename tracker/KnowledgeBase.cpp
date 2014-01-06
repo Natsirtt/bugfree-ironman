@@ -36,7 +36,11 @@ void KnowledgeBase::addPartition(std::string client, std::string file, int parti
 }
 
 void KnowledgeBase::addFile(File file) {
-    mFilesDesc[file.getKey()] = file;
+    try {
+        File& f = mFilesDesc.at(file.getKey());
+    } catch (...) {
+        mFilesDesc[file.getKey()] = file;
+    }
 }
 
 bool KnowledgeBase::hasPartition(std::string client, std::string file, int partition) {
@@ -70,12 +74,6 @@ int KnowledgeBase::getConnectedClientCount() {
 }
 
 File& KnowledgeBase::getFile(std::string fileName) {
-    try {
-        File f = mFilesDesc.at(fileName);
-    } catch (...) {
-        //File file(fileName); TODO ajouter les paramètre manquants
-        //mFilesDesc.insert(std::pair<std::string, Client>(fileName, file));
-    }
     return mFilesDesc.at(fileName);
 }
 

@@ -40,6 +40,9 @@ class KnowledgeBase { // TODO rendre threadSafe
         Client& getClient(std::string clientName);
         int getConnectedClientCount();
 
+        /**
+         * Note : Renvoie une exception si le fichier n'existe pas.
+         */
         File& getFile(std::string fileName);
 
         /**
