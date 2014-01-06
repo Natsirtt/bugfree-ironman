@@ -85,6 +85,10 @@ ClientFile::ClientFile(std::string filename) : mFilename (filename)
     unlock();
 }
 
+std::string ClientFile::getName() {
+    return mFilename;
+}
+
 void ClientFile::serialize() {
     lock();
     //Calcul du de la taille du buffer

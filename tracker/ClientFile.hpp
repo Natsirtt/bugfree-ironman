@@ -12,6 +12,8 @@ public:
     ClientFile(std::string filename, long long fileSize);
     ClientFile(std::string filename);
 
+    std::string getName();
+
     void serialize();
     void lock();
     void unlock();
