@@ -15,3 +15,5 @@
 # Codeblocks files
 *.layout
 *.depend
+
+bin/*
