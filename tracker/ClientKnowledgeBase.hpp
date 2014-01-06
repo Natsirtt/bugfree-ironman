@@ -38,6 +38,11 @@ class ClientKnowledgeBase {
 
         void shutdown();
 
+        /**
+         * Renvoie la liste de tous les fichiers dans la base.
+         */
+        std::vector<ClientFile*> getFiles();
+
     protected:
 
     private:

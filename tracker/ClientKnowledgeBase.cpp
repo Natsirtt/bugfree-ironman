@@ -75,3 +75,7 @@ void ClientKnowledgeBase::shutdown() {
         it->second.serialize();
     }
 }
+
+std::vector<ClientFile*> ClientKnowledgeBase::getFiles() {
+    // TODO
+}
