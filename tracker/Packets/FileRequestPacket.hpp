@@ -5,12 +5,12 @@
 
 /**
  * Organisation d'un FileRequest :
- * -------------------------
- * |opcode|filename|envoie?|
- * -------------------------
- * | 4    | 100    | 1     |
- * -------------------------
- * Taille d'un FileRequest : 105 octets
+ * ----------------------------------
+ * |opcode|filename|envoie?|filesize|
+ * ----------------------------------
+ * | 4    | 100    | 1     | 8      |
+ * ----------------------------------
+ * Taille d'un FileRequest : 113 octets
  */
 class FileRequestPacket : public IPacket {
     public:
@@ -19,8 +19,9 @@ class FileRequestPacket : public IPacket {
         /**
          * Construit un paquet à partir de ces paramétres.
          * @param send true si l'on veux envoyer le fichier.
+         * @param filesize Si (send == true) => la taille du fichier.
          */
-        FileRequestPacket(std::string filename, bool send);
+        FileRequestPacket(std::string filename, bool send, long long int filesize);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.
@@ -54,6 +55,7 @@ class FileRequestPacket : public IPacket {
     private:
         std::string mFileName;
         bool mSend;
+        long long int mFilesize;
 };
 
 #endif // IPACKET_HPP

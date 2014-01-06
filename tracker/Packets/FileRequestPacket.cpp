@@ -8,10 +8,11 @@
 #include "FileAnswerPacket.hpp"
 #include "../AnswerQueue.hpp"
 #include "../KnowledgeBase.hpp"
+#include "../Defines.hpp"
 
 
-FileRequestPacket::FileRequestPacket(std::string filename, bool send)
-                        : mFileName(filename), mSend(send) {
+FileRequestPacket::FileRequestPacket(std::string filename, bool send, long long filesize)
+                        : mFileName(filename), mSend(send), mFilesize(filesize) {
 }
 
 FileRequestPacket::FileRequestPacket(char* data, int size) {
@@ -27,6 +28,8 @@ FileRequestPacket::FileRequestPacket(char* data, int size) {
     bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mSend = *send;
 
+    long long int* fsize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool));
+    mFilesize = *fsize;
 }
 
 FileRequestPacket::~FileRequestPacket() {
@@ -38,7 +41,7 @@ unsigned int FileRequestPacket::getOpcode() {
 }
 
 int FileRequestPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(bool);
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int);
 }
 
 char* FileRequestPacket::toData() {
@@ -54,6 +57,9 @@ char* FileRequestPacket::toData() {
     bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *send = mSend;
 
+    long long int* fsize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool));
+    *fsize = mFilesize;
+
     return data;
 }
 
@@ -62,12 +68,16 @@ void FileRequestPacket::exec(std::string adresse) {
     c.alive();
 
     std::vector<Association> assocs;
+    int fileSize = 0;
     if (mSend) {
+        File f(mFileName, mFilesize, mFilesize / PARTITION_SIZE);
+        KnowledgeBase::get().addFile(f);
         assocs = KnowledgeBase::get().getClientsToSend(mFileName);
     } else {
         File& f = KnowledgeBase::get().getFile(mFileName);
+        fileSize = f.getSize();
         assocs = f.getClientsToAsk();
     }
-    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, assocs);
+    FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, fileSize, assocs);
     AnswerQueue::get().sendToClient(fap, adresse);
 }

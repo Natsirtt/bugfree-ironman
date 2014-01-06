@@ -10,18 +10,18 @@
 
 /**
  * Organisation d'un FileAnswer :
- * --------------------------------------------------------
- * |opcode|filename|envoie?|assocNb|tableau d'associations|
- * --------------------------------------------------------
- * | 4    | 100    | 1     | 4     | taille d'assoc * 8   | tailles en octets
- * --------------------------------------------------------
+ * -----------------------------------------------------------------
+ * |opcode|filename|envoie?|filesize|assocNb|tableau d'associations|
+ * -----------------------------------------------------------------
+ * | 4    | 100    | 1     | 8      | 4     | taille d'assoc * 8   | tailles en octets
+ * -----------------------------------------------------------------
  *    Association :
  *    --------------------------
  *    | nbPartition | ipClient |
  *    --------------------------
  *    | 4           | 60 ?     |
  *    --------------------------
- * Taille d'un FileAnswer : 621 octets
+ * Taille d'un FileAnswer : 629 octets
  */
 class FileAnswerPacket : public IPacket {
     public:
@@ -31,7 +31,7 @@ class FileAnswerPacket : public IPacket {
         /**
          * Construit un paquet à partir de ces paramétres.
          */
-        FileAnswerPacket(std::string filename, bool send, std::vector<Association> assoc);
+        FileAnswerPacket(std::string filename, bool send, long long int filesize, std::vector<Association> assoc);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.
@@ -65,6 +65,7 @@ class FileAnswerPacket : public IPacket {
     private:
         std::string mFileName;
         bool mSend;
+        long long int mFilesize;
         std::vector<Association> mAssoc;
 };
 
