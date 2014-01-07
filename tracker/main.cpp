@@ -71,10 +71,12 @@ int main(int argc, char* argv[]) {
 
         if (port == TRACKER_PORT) {
             std::cout << "Demarrage en mode Tracker sur le port : " << port << std::endl;
-            ClientKnowledgeBase::get();
+            KnowledgeBase::get();
         } else {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
-            KnowledgeBase::get();
+            ClientKnowledgeBase::get();
+            //Synchronisation avec le tracker
+
             Interface::get().start();
         }
 
@@ -97,10 +99,9 @@ int main(int argc, char* argv[]) {
         }
 
         if (port != TRACKER_PORT) {
-            std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
-            KnowledgeBase::get();
             Interface::get().stop();
             Interface::get().reset();
+            ClientKnowledgeBase::get().shutdown();
         }
 
         // On nettoie toutes les données

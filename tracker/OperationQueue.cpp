@@ -16,6 +16,7 @@ OperationQueue::OperationQueue() {
     // Initialisation du semaphore
     key_t key = ftok(KEY_FILE, KEY_ID);
     if (key == -1) {
+        perror("ftok");
         throw std::runtime_error("Impossible de trouver la cle du semaphore");
     }
 

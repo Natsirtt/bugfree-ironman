@@ -5,6 +5,7 @@
 #include <climits>
 #include <cstdio>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "Defines.hpp"
 
@@ -23,19 +24,18 @@ ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(fil
         perror("Erreur init mutex");
         throw std::runtime_error("Erreur init mutex dans ClientFile");
     }
+    long long nbOfPart = fileSize / PARTITION_SIZE;
+    if (fileSize % PARTITION_SIZE != 0) {
+        nbOfPart++;
+    }
+    for (long long i = 0; i < nbOfPart; ++i) {
+        std::cout << i << std::endl;
+        endPartition(i);
+    }
 }
 
-ClientFile::ClientFile(std::string filename) : mFilename (filename)
+ClientFile::ClientFile(std::string filename)
 {
-    std::fstream file((std::string(".") + filename).c_str(), std::fstream::binary);
-
-    file.seekg(0, file.end);
-    long long fileLength = file.tellg();
-    file.seekg(0, file.beg);
-
-    char data[fileLength];
-
-    file.read(data, fileLength);
 
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
@@ -44,6 +44,23 @@ ClientFile::ClientFile(std::string filename) : mFilename (filename)
     }
 
     lock();
+
+    std::fstream file((std::string(FILES_PATH) + filename).c_str(), std::fstream::binary | std::fstream::in);
+    if (!file.good()) {
+        std::cerr << "FILE NOT GOOD !!" << std::endl;
+        throw std::runtime_error("File not good after open");
+    }
+    filename.erase(0, 1);
+    mFilename = filename;
+
+    file.seekg(0, file.end);
+    long long fileLength = file.tellg();
+    file.seekg(0, file.beg);
+
+    char data[fileLength];
+
+    file.read(data, fileLength);
+    file.close();
 
     long long *fileSize = (long long *) data;
     mFileSize = *fileSize;
@@ -143,9 +160,19 @@ void ClientFile::serialize() {
     }
     unlock();
 
-    std::fstream file((std::string(".") + mFilename).c_str(), std::fstream::binary);
+    std::string path = std::string(FILES_PATH) + std::string(".") + mFilename;
+    std::fstream file(path.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
+    /*if (truncate(path.c_str(), 0) != 0) {
+        perror("truncate");
+        throw std::runtime_error("Erreur lors du truncate du fichier metadata");
+    }*/
 
     file.write(buffer, bufferSize);
+    file.close();
+    if (chmod(path.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) == -1) {
+        perror("chmod");
+        throw std::runtime_error("Erreur lors du chmod sur la metadata");
+    }
 }
 
 void ClientFile::lock() {
@@ -170,19 +197,14 @@ bool ClientFile::isNthBitSet(char c, int n) {
 }
 
 bool ClientFile::isNthBitSet(std::vector<char> bitmap, int n) {
-    lock();
-    bool res = (bitmap.size() >= (unsigned int) (n / 8)) && isNthBitSet(bitmap[n / 8], n % 8);
-    unlock();
-    return res;
+    return (bitmap.size() >= (unsigned int) (n / 8)) && isNthBitSet(bitmap[n / 8], n % 8);
 }
 
 void ClientFile::setNthBit(std::vector<char> &bitmap, int n) {
-    lock();
     char c = bitmap[n / 8];
     char mask = (char) 1; //00000001
     mask = mask << (n % 8);
     bitmap[n / 8] = c | mask;
-    unlock();
 }
 
 bool ClientFile::hasPartition(int part) {
@@ -208,6 +230,16 @@ void ClientFile::addBlock(int part, int block) {
     if (!hasBlock(part, block)) {
         setNthBit(mBlocks[part], block);
     }
+    bool partCompleted = true;
+    for (unsigned int i = 0; i < PARTITION_SIZE / BLOCK_SIZE; ++i) {
+        if (!hasBlock(part, i)) {
+            partCompleted = false;
+            break;
+        }
+    }
+    if (partCompleted) {
+        endPartition(part);
+    }
 }
 
 void ClientFile::beginPartition(int part) {
@@ -220,9 +252,9 @@ void ClientFile::beginPartition(int part) {
 
 void ClientFile::endPartition(int part) {
     lock();
-    if (!hasPartition(part)) {
+    //if (!hasPartition(part)) {
         setNthBit(mPartitions, part);
-    }
+    //}
     unlock();
 }
 
@@ -231,7 +263,7 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
         return std::vector<char>();
     }
     lock();
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
 
     long long offset = computeFileOffset(part, block);
 
@@ -260,7 +292,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         int firstPart = getFirstUsedBit(mPartitions);
         int lastPart = getLastUsedBit(mPartitions);
         if (!((firstPart < part) && (part < lastPart))) {
-            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
             file.seekg(0, file.end);
             long long currentSize = file.tellg();
             file.seekg(0, file.beg);
@@ -269,11 +301,11 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
             if (firstPart > part) {
                 gap = (firstPart - part) * BLOCK_SIZE;
                 std::string newFilePath = std::string(FILES_PATH) + mFilename + ".tmp";
-                std::fstream newFile(newFilePath.c_str(), std::fstream::binary);
-                if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
+                std::fstream newFile(newFilePath.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
+                /*if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
                     perror("Erreur au truncate");
                     throw std::runtime_error("Erreur de truncate");
-                }
+                }*/
 
                 newFile.seekp(gap, newFile.beg);
 
@@ -304,7 +336,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         beginPartition(part);
     }
 
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::out);
 
     long long offset = computeFileOffset(part, block);
 

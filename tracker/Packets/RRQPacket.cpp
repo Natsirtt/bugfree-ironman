@@ -1,9 +1,13 @@
 #include "RRQPacket.hpp"
 #include "../Opcode.hpp"
+#include "../ClientKnowledgeBase.hpp"
+#include "../AnswerQueue.hpp"
+#include "DataPacket.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
+#include <vector>
 
 RRQPacket::RRQPacket(std::string filename, int partition, int firstBlock) : mFileName(filename), mPartition(partition), mFirstPacket(firstBlock) {
 }
@@ -56,5 +60,7 @@ char* RRQPacket::toData() {
 }
 
 void RRQPacket::exec(std::string adresse) {
-    // TODO
+    std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mFirstPacket);
+    IPacket* packet = new DataPacket(mFileName, mPartition, mFirstPacket, block.size(), block.data());
+    AnswerQueue::get().sendToClient(packet, adresse);
 }
