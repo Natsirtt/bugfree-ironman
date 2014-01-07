@@ -75,6 +75,8 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             ClientKnowledgeBase::get();
+            //Synchronisation avec le tracker
+
             Interface::get().start();
         }
 

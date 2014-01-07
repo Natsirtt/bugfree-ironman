@@ -24,6 +24,14 @@ ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(fil
         perror("Erreur init mutex");
         throw std::runtime_error("Erreur init mutex dans ClientFile");
     }
+    long long nbOfPart = fileSize / PARTITION_SIZE;
+    if (fileSize % PARTITION_SIZE != 0) {
+        nbOfPart++;
+    }
+    for (long long i = 0; i < nbOfPart; ++i) {
+        std::cout << i << std::endl;
+        endPartition(i);
+    }
 }
 
 ClientFile::ClientFile(std::string filename)
@@ -189,19 +197,14 @@ bool ClientFile::isNthBitSet(char c, int n) {
 }
 
 bool ClientFile::isNthBitSet(std::vector<char> bitmap, int n) {
-    lock();
-    bool res = (bitmap.size() >= (unsigned int) (n / 8)) && isNthBitSet(bitmap[n / 8], n % 8);
-    unlock();
-    return res;
+    return (bitmap.size() >= (unsigned int) (n / 8)) && isNthBitSet(bitmap[n / 8], n % 8);
 }
 
 void ClientFile::setNthBit(std::vector<char> &bitmap, int n) {
-    lock();
     char c = bitmap[n / 8];
     char mask = (char) 1; //00000001
     mask = mask << (n % 8);
     bitmap[n / 8] = c | mask;
-    unlock();
 }
 
 bool ClientFile::hasPartition(int part) {
@@ -249,9 +252,9 @@ void ClientFile::beginPartition(int part) {
 
 void ClientFile::endPartition(int part) {
     lock();
-    if (!hasPartition(part)) {
+    //if (!hasPartition(part)) {
         setNthBit(mPartitions, part);
-    }
+    //}
     unlock();
 }
 
