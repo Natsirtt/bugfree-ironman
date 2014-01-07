@@ -27,7 +27,7 @@ LIB_DEBUG = $(LIB)
 LDFLAGS_DEBUG = $(LDFLAGS)
 OBJDIR_DEBUG = obj/Debug
 DEP_DEBUG = 
-OUT_DEBUG = bin/Debug/tracker
+OUT_DEBUG = bin/Debug/project
 
 INC_RELEASE = $(INC)
 CFLAGS_RELEASE = $(CFLAGS) -O2
@@ -38,7 +38,7 @@ LIB_RELEASE = $(LIB)
 LDFLAGS_RELEASE = $(LDFLAGS) -s
 OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
-OUT_RELEASE = bin/Release/tracker
+OUT_RELEASE = bin/Release/project
 
 OBJ_DEBUG = $(OBJDIR_DEBUG)/Packets/ACKPacket.o $(OBJDIR_DEBUG)/Packets/AlivePacket.o $(OBJDIR_DEBUG)/Packets/DataPacket.o $(OBJDIR_DEBUG)/Packets/FileAnswerPacket.o $(OBJDIR_DEBUG)/Packets/FileRequestPacket.o $(OBJDIR_DEBUG)/Packets/FileUpdatePacket.o $(OBJDIR_DEBUG)/Packets/RRQPacket.o $(OBJDIR_DEBUG)/Packets/WRQPacket.o $(OBJDIR_DEBUG)/SocketUDP.o $(OBJDIR_DEBUG)/Thread.o $(OBJDIR_DEBUG)/main.o $(OBJDIR_DEBUG)/Client.o $(OBJDIR_DEBUG)/ClientFile.o $(OBJDIR_DEBUG)/ClientKnowledgeBase.o $(OBJDIR_DEBUG)/File.o $(OBJDIR_DEBUG)/AnswerQueue.o $(OBJDIR_DEBUG)/Interface/Interface.o $(OBJDIR_DEBUG)/KnowledgeBase.o $(OBJDIR_DEBUG)/NetworkTranslator.o $(OBJDIR_DEBUG)/Operation.o $(OBJDIR_DEBUG)/OperationQueue.o
 
