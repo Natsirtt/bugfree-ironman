@@ -1,17 +1,21 @@
 #include <iostream>
 #include <sstream>
+#include <cstring>
+#include <cstdlib>
 
- #include "File.hpp"
- #include "KnowledgeBase.hpp"
- #include "SocketUDP.hpp"
- #include "Operation.hpp"
- #include "NetworkTranslator.hpp"
- #include "OperationQueue.hpp"
- #include "Thread.hpp"
- #include "Defines.hpp"
- #include "AnswerQueue.hpp"
- #include <cstring>
- #include <cstdlib>
+
+#include "File.hpp"
+#include "KnowledgeBase.hpp"
+#include "SocketUDP.hpp"
+#include "Operation.hpp"
+#include "NetworkTranslator.hpp"
+#include "OperationQueue.hpp"
+#include "Thread.hpp"
+#include "Defines.hpp"
+#include "AnswerQueue.hpp"
+#include "ClientKnowledgeBase.hpp"
+#include "KnowledgeBase.hpp"
+#include "Interface/Interface.hpp"
 
 using namespace std;
 
@@ -67,9 +71,13 @@ int main(int argc, char* argv[]) {
 
         if (port == TRACKER_PORT) {
             std::cout << "Demarrage en mode Tracker sur le port : " << port << std::endl;
+            ClientKnowledgeBase::get();
         } else {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
+            KnowledgeBase::get();
         }
+
+        Interface::get().draw();
 
         while (State::get().isRunning()) {
             IPacket* packet = NULL;

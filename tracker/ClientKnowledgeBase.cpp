@@ -77,5 +77,6 @@ void ClientKnowledgeBase::shutdown() {
 }
 
 std::vector<ClientFile*> ClientKnowledgeBase::getFiles() {
-    // TODO
+    std::vector<ClientFile*> files;
+    return files;
 }
