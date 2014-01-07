@@ -1,6 +1,7 @@
 #include "FileAnswerPacket.hpp"
 #include "../Opcode.hpp"
 
+#include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -20,20 +21,20 @@ FileAnswerPacket::FileAnswerPacket(std::string filename, bool send, long long in
 FileAnswerPacket::FileAnswerPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
+        std::cout << size << " " << getSize() << std::endl;
         throw std::runtime_error("Erreur lors du traitement d'un paquet FileAnswer\n");
     }
 
     char* filename = data + sizeof(getOpcode());
     mFileName = std::string(filename);
 
-    bool* send = (bool*) sizeof(getOpcode()) + MAX_FILENAME_SIZE;
+    bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mSend = *send;
 
     long long int* fsize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool));
     mFilesize = *fsize;
 
-    int* nbAssocPtr = (int*) sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int);
+    int* nbAssocPtr = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int));
     int nbAssoc = htonl(*nbAssocPtr);
 
     Association* assocs = (Association*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int) + sizeof(int));
@@ -61,27 +62,27 @@ char* FileAnswerPacket::toData() {
     *opcode = htonl(getOpcode());
 
     char* filename = data + sizeof(getOpcode());
-    strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE - 1);
+    strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE);
     filename[MAX_FILENAME_SIZE - 1] = '\0'; // Protection
 
-    bool* send = (bool*) sizeof(getOpcode()) + MAX_FILENAME_SIZE;
+    bool* send = (bool*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *send = mSend;
 
     long long int* fsize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool));
     *fsize = mFilesize;
 
-    int* nbAssoc = (int*) sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int);
+    int* nbAssoc = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int));
     *nbAssoc = htonl(mAssoc.size());
 
     int offset = sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(bool) + sizeof(long long int) + sizeof(int);
-    for (unsigned int i = 0; i < mAssoc.size(); ++i) {
-        memcpy(data + offset + i * sizeof(Association), &mAssoc[i], sizeof(Association));
-    }
+    memcpy(data + offset, mAssoc.data(), sizeof(Association) * mAssoc.size());
 
     return data;
 }
 
 void FileAnswerPacket::exec(std::string adresse) {
+    std::cout << "taille : " << mAssoc.size() << std::endl;
+
     for (unsigned int i = 0; i < mAssoc.size(); ++i) {
         std::string addr(mAssoc[i].ipClient);
         IPacket* packet = NULL;

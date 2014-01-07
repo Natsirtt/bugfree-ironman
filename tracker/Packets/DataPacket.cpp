@@ -20,7 +20,6 @@ DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blo
 DataPacket::DataPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet DATA\n");
     }
 

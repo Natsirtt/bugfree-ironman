@@ -41,6 +41,11 @@ class ClientKnowledgeBase {
          */
         std::vector<ClientFile*> getFiles();
 
+        /**
+         * Envoie les données à jour au tracker.
+         */
+        void sendAll(std::string& trackerIP);
+
     protected:
 
     private:

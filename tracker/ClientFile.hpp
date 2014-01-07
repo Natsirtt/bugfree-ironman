@@ -38,6 +38,11 @@ public:
     int getNextFreeBlockNumber(int part);
     long long getSize();
 
+    /**
+     * Envoie le fichier au tracker.
+     */
+    void send(std::string& trackerIP);
+
 protected:
 
 private:

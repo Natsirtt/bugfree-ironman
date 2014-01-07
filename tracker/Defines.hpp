@@ -5,7 +5,7 @@
 #include <iostream>
 
 // Le nombre de threads de traitement qu'on utilise
-#define THREAD_NUMBER 5
+#define THREAD_NUMBER 10
 
 #define TRACKER_PORT 98765
 #define CLIENT_PORT 98764
@@ -29,12 +29,14 @@ class State {
         }
 
         void stop() {
+            //std::cout << "stop" << std::endl;
             mRunning = false;
         }
 
     private:
         static void handler_function (int parameter) {
             if (parameter != SIGALRM) {
+                //std::cout << "signal " << parameter << std::endl;
                 State::get().stop();
             }
         }

@@ -39,6 +39,8 @@ int main(int argc, char* argv[]) {
                         std::stringstream ss(argv[3]);
                         ss >> nbThreads;
                     }
+                } else {
+                    help();
                 }
             } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
                  port = TRACKER_PORT;
@@ -77,6 +79,8 @@ int main(int argc, char* argv[]) {
             ClientKnowledgeBase::get();
             //Synchronisation avec le tracker
 
+            ClientKnowledgeBase::get().sendAll(trackerIP);
+
             Interface::get().start();
         }
 
@@ -84,7 +88,6 @@ int main(int argc, char* argv[]) {
             IPacket* packet = NULL;
             std::string adresse;
             int port = -1;
-
             // On récupére un paquet à partir de la socket
             packet = nt.readPacket(adresse, &port, 0);
             if (packet == NULL) {

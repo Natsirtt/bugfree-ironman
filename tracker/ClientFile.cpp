@@ -8,6 +8,9 @@
 #include <sys/stat.h>
 
 #include "Defines.hpp"
+#include "Packets/FileRequestPacket.hpp"
+#include "Packets/FileUpdatePacket.hpp"
+#include "AnswerQueue.hpp"
 
 ClientFile::ClientFile() : mFilename(""), mFileSize(0) {
 
@@ -421,4 +424,14 @@ long long ClientFile::getSize() {
     long long res = mFileSize;
     unlock();
     return res;
+}
+
+void ClientFile::send(std::string& trackerIP) {
+    lock();
+    /*IPacket* packet = new FileUpdatePacket(mFilename, mPartitions.size(), mPartitions.data());
+    AnswerQueue::get().sendToTracker(packet, trackerIP);*/
+
+    IPacket* packet = new FileRequestPacket(mFilename, true, mFileSize);
+    AnswerQueue::get().sendToTracker(packet, trackerIP);
+    unlock();
 }

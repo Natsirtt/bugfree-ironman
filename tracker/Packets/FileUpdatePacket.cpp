@@ -14,7 +14,6 @@ FileUpdatePacket::FileUpdatePacket(std::string filename, int bitmapSize, char *p
 FileUpdatePacket::FileUpdatePacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet FILEUPDATE\n");
     }
 

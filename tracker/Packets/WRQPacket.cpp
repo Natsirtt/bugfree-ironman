@@ -14,7 +14,6 @@ WRQPacket::WRQPacket(std::string filename, int partition) : mFileName(filename),
 WRQPacket::WRQPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet RRQ\n");
     }
 

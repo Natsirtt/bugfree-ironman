@@ -15,7 +15,6 @@ RRQPacket::RRQPacket(std::string filename, int partition, int firstBlock) : mFil
 RRQPacket::RRQPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet RRQ\n");
     }
 

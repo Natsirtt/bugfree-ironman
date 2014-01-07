@@ -18,7 +18,6 @@ FileRequestPacket::FileRequestPacket(std::string filename, bool send, long long 
 FileRequestPacket::FileRequestPacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet FileRequest\n");
     }
 

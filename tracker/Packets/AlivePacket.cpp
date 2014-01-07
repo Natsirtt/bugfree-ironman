@@ -13,7 +13,6 @@ AlivePacket::AlivePacket() {
 AlivePacket::AlivePacket(char* data, int size) {
     int* opcode = (int*) data;
     if ((ntohl(*opcode) != getOpcode()) || (size != getSize())) {
-        delete[] data;
         throw std::runtime_error("Erreur lors du traitement d'un paquet Alive\n");
     }
 }

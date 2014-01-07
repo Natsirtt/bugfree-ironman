@@ -148,3 +148,11 @@ std::vector<ClientFile*> ClientKnowledgeBase::getFiles() {
     unlock();
     return res;
 }
+
+void ClientKnowledgeBase::sendAll(std::string& trackerIP) {
+    lock();
+    for (std::map<std::string, ClientFile>::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
+        it->second.send(trackerIP);
+    }
+    unlock();
+}

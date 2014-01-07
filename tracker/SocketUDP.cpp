@@ -178,9 +178,9 @@ int SocketUDP::read(char* buffer, int length,
 		perror("read()");
 		return -1;
 	}
-	if ((adresse.size() > 0) && (port != NULL)) {
+	if ((adresse.size() <= 0) || (port != NULL)) {
 		Id i = getIdBySockAddr(&in);
-		if (adresse.size() > 0) {
+		if (adresse.size() <= 0) {
 			adresse.swap(i.ip);
 		}
 		if (port != NULL) {
