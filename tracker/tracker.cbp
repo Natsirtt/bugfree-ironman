@@ -47,6 +47,8 @@
 		<Unit filename="Defines.hpp" />
 		<Unit filename="File.cpp" />
 		<Unit filename="File.hpp" />
+		<Unit filename="Interface/Interface.cpp" />
+		<Unit filename="Interface/Interface.hpp" />
 		<Unit filename="KnowledgeBase.cpp" />
 		<Unit filename="KnowledgeBase.hpp" />
 		<Unit filename="NetworkTranslator.cpp" />
