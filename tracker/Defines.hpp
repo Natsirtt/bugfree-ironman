@@ -34,7 +34,9 @@ class State {
 
     private:
         static void handler_function (int parameter) {
-            State::get().stop();
+            if (parameter != SIGALRM) {
+                State::get().stop();
+            }
         }
 
         State() : mRunning(true) {
@@ -44,7 +46,8 @@ class State {
                 SIGILL,
                 SIGINT,
                 SIGSEGV,
-                SIGTERM
+                SIGTERM,
+                SIGALRM
             };
             for (unsigned int i = 0; i < sizeof(signals) / sizeof(int); ++i) {
                 signal (signals[i], handler_function);

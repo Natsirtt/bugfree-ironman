@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             KnowledgeBase::get();
-            Interface::get().draw();
+            Interface::get().start();
         }
 
         while (State::get().isRunning()) {
@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
         if (port != TRACKER_PORT) {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             KnowledgeBase::get();
+            Interface::get().stop();
             Interface::get().reset();
         }
 
