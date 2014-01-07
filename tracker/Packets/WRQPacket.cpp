@@ -1,5 +1,8 @@
 #include "WRQPacket.hpp"
 #include "../Opcode.hpp"
+#include "../ClientKnowledgeBase.hpp"
+#include "../AnswerQueue.hpp"
+#include "ACKPacket.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
@@ -52,7 +55,9 @@ char* WRQPacket::toData() {
 }
 
 void WRQPacket::exec(std::string adresse) {
-    // TODO
+    IPacket* packet = new ACKPacket(mFileName, mPartition, -1, 0);
+
+    AnswerQueue::get().sendToClient(packet, adresse);
 }
 
 std::string WRQPacket::getName() {

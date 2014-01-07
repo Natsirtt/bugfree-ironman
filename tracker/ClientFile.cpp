@@ -227,6 +227,16 @@ void ClientFile::addBlock(int part, int block) {
     if (!hasBlock(part, block)) {
         setNthBit(mBlocks[part], block);
     }
+    bool partCompleted = true;
+    for (unsigned int i = 0; i < PARTITION_SIZE / BLOCK_SIZE; ++i) {
+        if (!hasBlock(part, i)) {
+            partCompleted = false;
+            break;
+        }
+    }
+    if (partCompleted) {
+        endPartition(part);
+    }
 }
 
 void ClientFile::beginPartition(int part) {

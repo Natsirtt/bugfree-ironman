@@ -10,7 +10,7 @@
  * -----------------------------
  * | 4    | 100    | 4         |tailles en octets
  * -----------------------------
- * Taille d'un RRQ : 108 octets
+ * Taille d'un WRQ : 108 octets
  */
 class WRQPacket : public IPacket {
     public:
