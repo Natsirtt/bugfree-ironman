@@ -28,8 +28,13 @@ ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(fil
     if (fileSize % PARTITION_SIZE != 0) {
         nbOfPart++;
     }
+    int bitmapSize = nbOfPart / 8;
+    if ((nbOfPart % 8) != 0) {
+        bitmapSize++;
+    }
+    mPartitions.resize(bitmapSize);
     for (long long i = 0; i < nbOfPart; ++i) {
-        std::cout << i << std::endl;
+        //std::cout << i << std::endl;
         endPartition(i);
     }
 }

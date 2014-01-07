@@ -111,7 +111,7 @@ void Interface::draw() {
         line.str("");
         line.clear();
         if (i < (int)mFiles.size()) {
-            line << mFiles[i]->getName() << " - " << mFiles[i]->getSize();
+            line << mFiles[i]->getName() << " - " << mFiles[i]->getSize() << " octets";
         } else {
             line << "";
         }
@@ -134,7 +134,7 @@ void Interface::precPage() {
 }
 
 void Interface::nextPage() {
-    if (mCurrentPage < getMaxPageNumber()) {
+    if (mCurrentPage < (getMaxPageNumber() - 1)) {
         mCurrentPage++;
         draw();
     }
