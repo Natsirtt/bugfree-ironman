@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
                 }
             } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
                  port = TRACKER_PORT;
-            } else if ((argc > 1) && (strcmp(argv[1], "TRACKER") == 0)) {
+            } else {
                 help();
             }
         } catch (...) {
