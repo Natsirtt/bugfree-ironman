@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
         }
 
         // On construit la socket principale de reception de packets
-        SocketUDP mainSocket("0.0.0.0", port);
+        SocketUDP mainSocket("", port);
 
         NetworkTranslator nt(&mainSocket);
 

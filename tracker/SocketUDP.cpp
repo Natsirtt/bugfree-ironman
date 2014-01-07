@@ -210,7 +210,11 @@ int SocketUDP::initSockAddr(std::string adresse, int port, struct sockaddr_in* i
     int s;
     char service[10];
     sprintf(service, "%d", port);
-    if ((s = getaddrinfo(adresse.c_str(), service, &hint, &res)) == -1) {
+    const char* addr = NULL;
+    if (adresse.size() > 0) {
+        addr = adresse.c_str();
+    }
+    if ((s = getaddrinfo(addr, service, &hint, &res)) == -1) {
         std::cout << "getaddrinfo: " << gai_strerror(s) << std::endl;
         return -1;
     }
