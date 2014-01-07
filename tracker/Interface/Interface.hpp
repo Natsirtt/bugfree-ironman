@@ -9,7 +9,7 @@ class ClientFile;
 #define ROW 24
 #define COLUMN 80
 
-class Interface {
+class Interface { // TODO rendre threadsafe
     public:
         static Interface& get() {
             static Interface interface;
@@ -26,6 +26,8 @@ class Interface {
         void nextPage();
 
         int getMaxPageNumber();
+
+        void update();
 
     private:
         Interface();

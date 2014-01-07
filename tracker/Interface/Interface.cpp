@@ -69,6 +69,8 @@ void* interface_thread(void* arg) {
                 State::get().stop();
                 kill(getpid(), SIGTERM);
                 break;
+            case 'u':
+                Interface::get().update();
             default:
                 break;
             }
@@ -149,5 +151,9 @@ int Interface::getMaxPageNumber() {
 void Interface::reset() {
     std::cout << "\033[1;1H\033[0m"; // Retourne au debut puis change le mode d'écriture
     std::cout << "\033[2J"; // Efface l'écran
+}
+
+void Interface::update() {
+    mFiles = ClientKnowledgeBase::get().getFiles();
 }
 
