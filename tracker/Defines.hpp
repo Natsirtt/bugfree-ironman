@@ -7,8 +7,8 @@
 // Le nombre de threads de traitement qu'on utilise
 #define THREAD_NUMBER 10
 
-#define TRACKER_PORT 98765
-#define CLIENT_PORT 98764
+#define TRACKER_PORT 9876
+#define CLIENT_PORT 9875
 
 //La taille d'un bloc
 #define BLOCK_SIZE 512ll
