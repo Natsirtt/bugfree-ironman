@@ -40,8 +40,9 @@ ClientKnowledgeBase::ClientKnowledgeBase() {
     }
 
     while((entry = readdir(dp))) {
-        if (entry->d_name[0] == '.') {
-            ClientFile cf(std::string(entry->d_name));
+        std::string entryName(entry->d_name);
+        if ((entry->d_name[0] == '.') && (entryName != std::string(".")) && entryName != std::string("..")) {
+            ClientFile cf(entryName);
             mFiles[cf.getName()] = cf;
             filesWithMetadata.push_back(cf.getName());
         }
@@ -57,10 +58,15 @@ ClientKnowledgeBase::ClientKnowledgeBase() {
 
     while ((entry = readdir(dp))) {
         if (entry->d_name[0] != '.') {
-            if (__strVectContains(filesWithMetadata, std::string(entry->d_name))) {
+            if (!__strVectContains(filesWithMetadata, std::string(entry->d_name))) {
+                std::cout << "New metadata !" << std::endl;
                 //Le fichier n'a pas de métadata
                 //On récupère sa taille
-                std::fstream file(entry->d_name, std::fstream::binary);
+                std::fstream file((std::string(FILES_PATH) + std::string(entry->d_name)).c_str(), std::fstream::binary | std::fstream::in);
+                if (!file.good()) {
+                    std::cerr << "FILE NOT GOOD !!" << std::endl;
+                    throw std::runtime_error("File not good at open");
+                }
                 file.seekg(0, file.end);
                 long long len = file.tellg();
                 file.close();
@@ -69,6 +75,7 @@ ClientKnowledgeBase::ClientKnowledgeBase() {
             }
         }
     }
+    closedir(dp);
 }
 
 void ClientKnowledgeBase::lock() {

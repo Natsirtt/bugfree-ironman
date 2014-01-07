@@ -5,6 +5,7 @@
 #include <climits>
 #include <cstdio>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "Defines.hpp"
 
@@ -36,8 +37,11 @@ ClientFile::ClientFile(std::string filename)
 
     lock();
 
-    std::fstream file(filename.c_str(), std::fstream::binary);
-
+    std::fstream file((std::string(FILES_PATH) + filename).c_str(), std::fstream::binary | std::fstream::in);
+    if (!file.good()) {
+        std::cerr << "FILE NOT GOOD !!" << std::endl;
+        throw std::runtime_error("File not good after open");
+    }
     filename.erase(0, 1);
     mFilename = filename;
 
@@ -148,10 +152,19 @@ void ClientFile::serialize() {
     }
     unlock();
 
-    std::fstream file((std::string(FILES_PATH) + std::string(".") + mFilename).c_str(), std::fstream::binary);
+    std::string path = std::string(FILES_PATH) + std::string(".") + mFilename;
+    std::fstream file(path.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
+    /*if (truncate(path.c_str(), 0) != 0) {
+        perror("truncate");
+        throw std::runtime_error("Erreur lors du truncate du fichier metadata");
+    }*/
 
     file.write(buffer, bufferSize);
     file.close();
+    if (chmod(path.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) == -1) {
+        perror("chmod");
+        throw std::runtime_error("Erreur lors du chmod sur la metadata");
+    }
 }
 
 void ClientFile::lock() {
@@ -237,7 +250,7 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
         return std::vector<char>();
     }
     lock();
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
 
     long long offset = computeFileOffset(part, block);
 
@@ -266,7 +279,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         int firstPart = getFirstUsedBit(mPartitions);
         int lastPart = getLastUsedBit(mPartitions);
         if (!((firstPart < part) && (part < lastPart))) {
-            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
             file.seekg(0, file.end);
             long long currentSize = file.tellg();
             file.seekg(0, file.beg);
@@ -275,11 +288,11 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
             if (firstPart > part) {
                 gap = (firstPart - part) * BLOCK_SIZE;
                 std::string newFilePath = std::string(FILES_PATH) + mFilename + ".tmp";
-                std::fstream newFile(newFilePath.c_str(), std::fstream::binary);
-                if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
+                std::fstream newFile(newFilePath.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
+                /*if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
                     perror("Erreur au truncate");
                     throw std::runtime_error("Erreur de truncate");
-                }
+                }*/
 
                 newFile.seekp(gap, newFile.beg);
 
@@ -310,7 +323,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         beginPartition(part);
     }
 
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary);
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::out);
 
     long long offset = computeFileOffset(part, block);
 

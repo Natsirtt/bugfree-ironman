@@ -109,7 +109,7 @@ void Interface::draw() {
         line.str("");
         line.clear();
         if (i < (int)mFiles.size()) {
-            line << mFiles[i]->getName();
+            line << mFiles[i]->getName() << " - " << mFiles[i]->getSize();
         } else {
             line << "";
         }
