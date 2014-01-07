@@ -57,14 +57,14 @@ std::set<Client*>& File::getClients(int partition) {
     return mPartitionClient[partition];
 }
 
-std::vector<Association> File::getClientsToAsk() {
+std::vector<Association> File::getClientsToAsk(std::string& adresse) {
     std::vector<Association> assocs;
     for (int i = 0; i < mPartitionsNb; ++i) {
         std::set<Client*>& clients = mPartitionClient[i];
 
         std::set<Client*>::iterator it;
         for (it = clients.begin(); it != clients.end(); ++it) {
-            if ((*it)->isAlive()) {
+            if ((*it)->isAlive() && ((*it)->getAdresse() != adresse)) {
                 Association assoc;
                 assoc.partition = i;
                 strncpy(assoc.ipClient, (*it)->getAdresse().c_str(), 60);

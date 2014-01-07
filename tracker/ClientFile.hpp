@@ -9,7 +9,7 @@ class ClientFile {
 
 public:
     ClientFile();
-    ClientFile(std::string filename, long long fileSize);
+    ClientFile(std::string filename, long long int fileSize);
     ClientFile(std::string filename);
 
     std::string getName();

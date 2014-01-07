@@ -78,10 +78,10 @@ int main(int argc, char* argv[]) {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             ClientKnowledgeBase::get();
             //Synchronisation avec le tracker
-
+            std::cout << "Debut d'envoie" << std::endl;
             ClientKnowledgeBase::get().sendAll(trackerIP);
-
-            Interface::get().start();
+            std::cout << "Tout est envoye" << std::endl;
+            //Interface::get().start();
         }
 
         while (State::get().isRunning()) {
@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
             if (packet == NULL) {
                 continue;
             }
+            std::cout << "reception" << std::endl;
 
             // On construit une opération
             Operation op(packet, adresse, port);
@@ -102,8 +103,8 @@ int main(int argc, char* argv[]) {
         }
 
         if (port != TRACKER_PORT) {
-            Interface::get().stop();
-            Interface::get().reset();
+            //Interface::get().stop();
+            //Interface::get().reset();
             ClientKnowledgeBase::get().shutdown();
         }
 

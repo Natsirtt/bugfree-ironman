@@ -1,6 +1,7 @@
 #include "FileUpdatePacket.hpp"
 #include "../Opcode.hpp"
 
+#include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -9,6 +10,9 @@
 
 FileUpdatePacket::FileUpdatePacket(std::string filename, int bitmapSize, char *partitionBitmap)
                         : mFileName(filename), mBitmapSize(bitmapSize), mPartitionBitmap(partitionBitmap) {
+    if (mBitmapSize > MAX_BITMAP_SIZE) {
+        throw std::runtime_error("Erreur lors du traitement d'un paquet FILEUPDATE : taille de la bitmap trop eleve\n");
+    }
 }
 
 FileUpdatePacket::FileUpdatePacket(char* data, int size) {
@@ -20,14 +24,15 @@ FileUpdatePacket::FileUpdatePacket(char* data, int size) {
     char* filename = data + sizeof(getOpcode());
     mFileName = std::string(filename);
 
-    int *bitmapSize = (int *) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
-    mBitmapSize = *bitmapSize;
+    int* bitmapSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    mBitmapSize = htonl(*bitmapSize);
 
-    mPartitionBitmap = (char*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int));
+    char* partitionBitmap = (char*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int));
+    mPartitionBitmap = new char[mBitmapSize];
+    memcpy(mPartitionBitmap, partitionBitmap, mBitmapSize);
 }
 
 FileUpdatePacket::~FileUpdatePacket() {
-
 }
 
 unsigned int FileUpdatePacket::getOpcode() {
@@ -35,7 +40,7 @@ unsigned int FileUpdatePacket::getOpcode() {
 }
 
 int FileUpdatePacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + MAX_BITMAP_SIZE;
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int) + MAX_BITMAP_SIZE;
 }
 
 char* FileUpdatePacket::toData() {
@@ -52,7 +57,10 @@ char* FileUpdatePacket::toData() {
     *bitmapSize = htonl(mBitmapSize);
 
     char* bitmap = (data + sizeof(getOpcode()) + sizeof(int) + MAX_FILENAME_SIZE);
-    memcpy(bitmap, mPartitionBitmap, MAX_BITMAP_SIZE);
+
+    int maxSize = MAX_BITMAP_SIZE;
+    maxSize = std::min(maxSize, mBitmapSize);
+    memcpy(bitmap, mPartitionBitmap, maxSize);
 
     return data;
 }

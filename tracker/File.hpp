@@ -25,7 +25,7 @@ class File {
 		std::set<Client*>& getClients();
 		std::set<Client*>& getClients(int partition);
 
-		std::vector<Association> getClientsToAsk();
+		std::vector<Association> getClientsToAsk(std::string& adresse);
 
 		std::string getKey();
 

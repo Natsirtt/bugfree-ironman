@@ -49,7 +49,7 @@ class KnowledgeBase { // TODO rendre threadSafe
          * Renvoie les clients auquels il faut envoyer un fichier.
          * Permet de calculer les clients les mieux placés pour recevoir une partition.
          */
-        std::vector<Association> getClientsToSend(std::string filename);
+        std::vector<Association> getClientsToSend(std::string& filename, std::string& adresse);
 
 	private:
 	    KnowledgeBase();

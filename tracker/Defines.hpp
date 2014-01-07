@@ -11,8 +11,8 @@
 #define CLIENT_PORT 98764
 
 //La taille d'un bloc
-#define BLOCK_SIZE 512
-#define PARTITION_SIZE BLOCK_SIZE * 2048
+#define BLOCK_SIZE 512ll
+#define PARTITION_SIZE BLOCK_SIZE * 2048ll
 
 //Le répertoire de téléchargement des fichiers
 #define FILES_PATH "files/"

@@ -68,14 +68,17 @@ void FileRequestPacket::exec(std::string adresse) {
     try {
         std::vector<Association> assocs;
         int fileSize = 0;
+        std::cout << "exec FileRequest" << std::endl;
         if (mSend) {
-            File f(mFileName, mFilesize, mFilesize / PARTITION_SIZE);
+            long long int part_size = PARTITION_SIZE;
+            File f(mFileName, mFilesize, part_size);
             KnowledgeBase::get().addFile(f);
-            assocs = KnowledgeBase::get().getClientsToSend(mFileName);
+            assocs = KnowledgeBase::get().getClientsToSend(mFileName, adresse);
+            std::cout << assocs.size() << " associations" << std::endl;
         } else {
             File& f = KnowledgeBase::get().getFile(mFileName);
             fileSize = f.getSize();
-            assocs = f.getClientsToAsk();
+            assocs = f.getClientsToAsk(adresse);
         }
         FileAnswerPacket* fap = new FileAnswerPacket(mFileName, mSend, fileSize, assocs);
         AnswerQueue::get().sendToClient(fap, adresse);

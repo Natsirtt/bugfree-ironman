@@ -20,15 +20,17 @@ bool ClientFile::isCorrectFile() {
     return mFilename != "";
 }
 
-ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(filename), mFileSize(fileSize)
+ClientFile::ClientFile(std::string filename, long long int fileSize) : mFilename(filename), mFileSize(fileSize)
 {
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
         perror("Erreur init mutex");
         throw std::runtime_error("Erreur init mutex dans ClientFile");
     }
-    long long nbOfPart = fileSize / PARTITION_SIZE;
-    if (fileSize % PARTITION_SIZE != 0) {
+    std::cout << fileSize << std::endl;
+    long long int part_size = PARTITION_SIZE;
+    long long int nbOfPart = fileSize / part_size;
+    if (fileSize % part_size != 0) {
         nbOfPart++;
     }
     int bitmapSize = nbOfPart / 8;
@@ -428,10 +430,9 @@ long long ClientFile::getSize() {
 
 void ClientFile::send(std::string& trackerIP) {
     lock();
-    /*IPacket* packet = new FileUpdatePacket(mFilename, mPartitions.size(), mPartitions.data());
-    AnswerQueue::get().sendToTracker(packet, trackerIP);*/
-
-    IPacket* packet = new FileRequestPacket(mFilename, true, mFileSize);
+    IPacket* packet = new FileUpdatePacket(mFilename, mPartitions.size(), mPartitions.data());
+    AnswerQueue::get().sendToTracker(packet, trackerIP);
+    packet = new FileRequestPacket(mFilename, true, mFileSize);
     AnswerQueue::get().sendToTracker(packet, trackerIP);
     unlock();
 }

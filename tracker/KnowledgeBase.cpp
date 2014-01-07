@@ -77,7 +77,7 @@ File& KnowledgeBase::getFile(std::string fileName) {
     return mFilesDesc.at(fileName);
 }
 
-std::vector<Association> KnowledgeBase::getClientsToSend(std::string filename) {
+std::vector<Association> KnowledgeBase::getClientsToSend(std::string& filename, std::string& adresse) {
     std::vector<Association> assocs;
 
     int connectedClient = getConnectedClientCount();
@@ -91,7 +91,7 @@ std::vector<Association> KnowledgeBase::getClientsToSend(std::string filename) {
     for (int i = 0; i < f.getPartitionsNb(); ++i) {
         if (f.getClients(i).size() == 0) {
             for (std::map<std::string, Client>::iterator it = mClientDesc.begin(); it != mClientDesc.end(); ++it) {
-                if (it->second.isAlive() && (it->second.getPartitionNumber(filename) < ratio)) {
+                if (it->second.isAlive() && (it->second.getPartitionNumber(filename) < ratio) && (it->second.getAdresse() != adresse)) {
                     Association assoc;
                     assoc.partition = i;
                     strncpy(assoc.ipClient, it->second.getAdresse().c_str(), 60);
