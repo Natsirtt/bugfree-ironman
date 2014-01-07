@@ -5,13 +5,13 @@
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
-//#include <ofstream>
-//#include <ifstream>
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
 
 #include "Defines.hpp"
+#include "Packets/AlivePacket.hpp"
+#include "AnswerQueue.hpp"
 
 
 bool __strVectContains(std::vector<std::string> v, std::string str) {
@@ -155,4 +155,9 @@ void ClientKnowledgeBase::sendAll(std::string& trackerIP) {
         it->second.send(trackerIP);
     }
     unlock();
+}
+
+void ClientKnowledgeBase::sendAlive(std::string& trackerIP) {
+    IPacket* packet = new AlivePacket();
+    AnswerQueue::get().sendToTracker(packet, trackerIP);
 }

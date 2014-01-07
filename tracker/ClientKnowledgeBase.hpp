@@ -46,6 +46,8 @@ class ClientKnowledgeBase {
          */
         void sendAll(std::string& trackerIP);
 
+        void sendAlive(std::string& trackerIP);
+
     protected:
 
     private:
