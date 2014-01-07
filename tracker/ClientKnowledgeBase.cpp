@@ -8,11 +8,67 @@
 //#include <ofstream>
 //#include <ifstream>
 #include <string.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "Defines.hpp"
 
+
+bool __strVectContains(std::vector<std::string> v, std::string str) {
+    for (std::vector<std::string>::iterator it = v.begin(); it != v.end(); ++it) {
+        if (str == *it) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ClientKnowledgeBase::ClientKnowledgeBase() {
     pthread_mutex_init (&mMutex, NULL);
+
+    //Récupération des métadata pour tous les fichiers qui en ont
+    //On garde en mémoire les filename qui ont bien une métadata
+    //et on crééra de nouvelles métadata pour les fichiers restants
+    std::vector<std::string> filesWithMetadata;
+    struct dirent* entry;
+    DIR* dp;
+
+    dp = opendir(FILES_PATH);
+    if (dp == NULL) {
+        perror("opendir");
+        throw std::runtime_error("Erreur lors de l'ouverture du répertoire");
+    }
+
+    while((entry = readdir(dp))) {
+        if (entry->d_name[0] == '.') {
+            ClientFile cf(std::string(entry->d_name));
+            mFiles[cf.getName()] = cf;
+            filesWithMetadata.push_back(cf.getName());
+        }
+    }
+
+    closedir(dp);
+
+    dp = opendir(FILES_PATH);
+    if (dp == NULL) {
+        perror("opendir");
+        throw std::runtime_error("Erreur lors de l'ouverture du répertoire");
+    }
+
+    while ((entry = readdir(dp))) {
+        if (entry->d_name[0] != '.') {
+            if (__strVectContains(filesWithMetadata, std::string(entry->d_name))) {
+                //Le fichier n'a pas de métadata
+                //On récupère sa taille
+                std::fstream file(entry->d_name, std::fstream::binary);
+                file.seekg(0, file.end);
+                long long len = file.tellg();
+                file.close();
+                ClientFile cf(std::string(entry->d_name), len);
+                mFiles[cf.getName()] = cf;
+            }
+        }
+    }
 }
 
 void ClientKnowledgeBase::lock() {

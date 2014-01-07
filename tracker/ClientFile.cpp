@@ -25,17 +25,8 @@ ClientFile::ClientFile(std::string filename, long long fileSize) : mFilename(fil
     }
 }
 
-ClientFile::ClientFile(std::string filename) : mFilename (filename)
+ClientFile::ClientFile(std::string filename)
 {
-    std::fstream file((std::string(".") + filename).c_str(), std::fstream::binary);
-
-    file.seekg(0, file.end);
-    long long fileLength = file.tellg();
-    file.seekg(0, file.beg);
-
-    char data[fileLength];
-
-    file.read(data, fileLength);
 
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
@@ -44,6 +35,20 @@ ClientFile::ClientFile(std::string filename) : mFilename (filename)
     }
 
     lock();
+
+    std::fstream file(filename.c_str(), std::fstream::binary);
+
+    filename.erase(0, 1);
+    mFilename = filename;
+
+    file.seekg(0, file.end);
+    long long fileLength = file.tellg();
+    file.seekg(0, file.beg);
+
+    char data[fileLength];
+
+    file.read(data, fileLength);
+    file.close();
 
     long long *fileSize = (long long *) data;
     mFileSize = *fileSize;
@@ -143,9 +148,10 @@ void ClientFile::serialize() {
     }
     unlock();
 
-    std::fstream file((std::string(".") + mFilename).c_str(), std::fstream::binary);
+    std::fstream file((std::string(FILES_PATH) + std::string(".") + mFilename).c_str(), std::fstream::binary);
 
     file.write(buffer, bufferSize);
+    file.close();
 }
 
 void ClientFile::lock() {
