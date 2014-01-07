@@ -75,9 +75,8 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             KnowledgeBase::get();
+            Interface::get().draw();
         }
-
-        Interface::get().draw();
 
         while (State::get().isRunning()) {
             IPacket* packet = NULL;
@@ -96,6 +95,13 @@ int main(int argc, char* argv[]) {
             // On ajoute l'opération à la file des opérations
             OperationQueue::get().addOperation(op);
         }
+
+        if (port != TRACKER_PORT) {
+            std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
+            KnowledgeBase::get();
+            Interface::get().reset();
+        }
+
         // On nettoie toutes les données
         std::cout << "Arret de la socket d'ecoute\n";
         mainSocket.close();

@@ -20,6 +20,7 @@ class Interface {
         void stop();
 
         void draw();
+        void reset();
 
         void precPage();
         void nextPage();
@@ -28,6 +29,7 @@ class Interface {
 
     private:
         Interface();
+        ~Interface();
 
         pthread_t mThread;
 

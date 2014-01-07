@@ -11,6 +11,10 @@ Interface::Interface() : mCurrentPage(0) {
     mFiles = ClientKnowledgeBase::get().getFiles();
 }
 
+Interface::~Interface() {
+    reset();
+}
+
 void* interface_thread(void* arg) {
     return NULL;
 }
@@ -35,20 +39,21 @@ void Interface::draw() {
 
     int begin = mCurrentPage * (ROW - 2);
     int end = begin + (ROW - 2);
-    line << "Fichiers " << begin << " a " << std::min(begin + (ROW - 2), (int)mFiles.size()) << " :\033[0;40;37m";
-    std::cout << std::setw(COLUMN) << std::left << line.str();
+    line << "Fichiers " << begin << " a " << std::min(begin + (ROW - 2), (int)mFiles.size()) << " :";
+    std::cout << line.str() << "\033[0;40;37m";
+    std::cout << std::setw(COLUMN - line.str().length()) << std::left << "";
 
     std::cout << "\033[0;40;37m"; // Change le mode d'écriture
     for (int i = begin; i < end; ++i) {
         line.str("");
         line.clear();
         if (i < (int)mFiles.size()) {
-            line << "\n" << mFiles[i]->getName();
+            line << mFiles[i]->getName();
         } else {
-            line << "\n";
+            line << "";
         }
 
-        std::cout << std::setw(COLUMN) << std::left << line.str();
+        std::cout << "\n" << std::setw(COLUMN) << std::left << line.str();
     }
     std::cout << "\033[" << ROW << ";1H";
     line.str("");
@@ -78,4 +83,9 @@ int Interface::getMaxPageNumber() {
         nb++;
     }
     return nb;
+}
+
+void Interface::reset() {
+    std::cout << "\033[1;1H\033[0m"; // Retourne au debut puis change le mode d'écriture
+    std::cout << "\033[2J"; // Efface l'écran
 }
