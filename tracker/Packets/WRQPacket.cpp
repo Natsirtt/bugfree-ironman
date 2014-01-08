@@ -4,6 +4,7 @@
 #include "../AnswerQueue.hpp"
 #include "ACKPacket.hpp"
 
+#include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -54,6 +55,7 @@ char* WRQPacket::toData() {
 }
 
 void WRQPacket::exec(std::string adresse) {
+    std::cout << "exec WRQPacket" << std::endl;
     IPacket* packet = new ACKPacket(mFileName, mPartition, -1, 0);
 
     AnswerQueue::get().sendToClient(packet, adresse);

@@ -66,6 +66,7 @@ char* FileUpdatePacket::toData() {
 }
 
 void FileUpdatePacket::exec(std::string adresse) {
+    std::cout << "exec fileUpdate " << mFileName << " bitmapsize " << mBitmapSize << std::endl;
     Client& c = KnowledgeBase::get().getClient(adresse);
     c.alive();
     c.updateFile(mFileName, mPartitionBitmap, mBitmapSize);

@@ -4,6 +4,7 @@
 #include "../AnswerQueue.hpp"
 #include "DataPacket.hpp"
 
+#include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -59,6 +60,7 @@ char* RRQPacket::toData() {
 }
 
 void RRQPacket::exec(std::string adresse) {
+    std::cout << "exec RRQPacket" << std::endl;
     std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mFirstPacket);
     IPacket* packet = new DataPacket(mFileName, mPartition, mFirstPacket, block.size(), block.data());
     AnswerQueue::get().sendToClient(packet, adresse);

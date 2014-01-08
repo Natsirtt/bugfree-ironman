@@ -1,6 +1,7 @@
 #include "AlivePacket.hpp"
 #include "../Opcode.hpp"
 
+#include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
@@ -39,5 +40,6 @@ char* AlivePacket::toData() {
 }
 
 void AlivePacket::exec(std::string adresse) {
+    std::cout << "Alive " << adresse << std::endl;
     KnowledgeBase::get().getClient(adresse).alive();
 }

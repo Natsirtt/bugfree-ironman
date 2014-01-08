@@ -81,7 +81,7 @@ char* FileAnswerPacket::toData() {
 }
 
 void FileAnswerPacket::exec(std::string adresse) {
-    std::cout << "taille : " << mAssoc.size() << std::endl;
+    std::cout << "exec FileAnswer taille : " << mAssoc.size() << std::endl;
 
     for (unsigned int i = 0; i < mAssoc.size(); ++i) {
         std::string addr(mAssoc[i].ipClient);
