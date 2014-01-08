@@ -14,10 +14,14 @@
 #include <fstream>
 
 DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData)
-                        : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize), mBlockData(blockData) {
+                        : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize) {
     if (blockSize > MAX_DATA_SIZE) {
         throw std::runtime_error("Erreur lors de la creation d'un paquet DATA : Taille des donnees trop importante\n");
     }
+    int maxSize = MAX_DATA_SIZE;
+    maxSize = std::min(maxSize, mBlockSize);
+    mBlockData = new char[maxSize];
+    memcpy(mBlockData, blockData, maxSize);
 }
 
 DataPacket::DataPacket(char* data, int size) {
@@ -43,8 +47,8 @@ DataPacket::DataPacket(char* data, int size) {
     int maxSize = MAX_DATA_SIZE;
     maxSize = std::min(maxSize, mBlockSize);
     mBlockData = new char[maxSize];
-
     memcpy(mBlockData, blockData, maxSize);
+
     std::stringstream ss;
     ss << mBlockNb;
     std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
@@ -54,7 +58,7 @@ DataPacket::DataPacket(char* data, int size) {
 }
 
 DataPacket::~DataPacket() {
-
+    delete mBlockData;
 }
 
 unsigned int DataPacket::getOpcode() {
