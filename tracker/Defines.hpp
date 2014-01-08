@@ -46,7 +46,7 @@ class State {
     private:
         static void handler_function (int parameter) {
             if (parameter != SIGALRM) {
-                //std::cout << "signal " << parameter << std::endl;
+                std::cout << "signal " << parameter << std::endl;
                 State::get().stop();
             }
         }
