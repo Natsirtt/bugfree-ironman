@@ -218,11 +218,10 @@ bool ClientFile::isNthBitSet(std::vector<char>& bitmap, int n) {
     return false;
 }
 
-void ClientFile::setNthBit(std::vector<char> &bitmap, int n) {
+void ClientFile::setNthBit(std::vector<char>& bitmap, int n) {
     char c = bitmap.at(n / 8);
-    char mask = (char) 1; //00000001
-    mask = mask << (n % 8);
-    bitmap[n / 8] = c | mask;
+    static unsigned char mask[] = {128, 64, 32, 16, 8, 4, 2, 1};
+    bitmap[n / 8] = c | mask[n % 8];
 }
 
 bool ClientFile::hasPartition(int part) {
@@ -245,9 +244,8 @@ bool ClientFile::isPartitionAcquiredOrInProgress(int part) {
 }
 
 void ClientFile::addBlock(int part, int block) {
-    if (!hasBlock(part, block)) {
-        setNthBit(mBlocks[part], block);
-    }
+    setNthBit(mBlocks[part], block);
+
     bool partCompleted = true;
     for (unsigned int i = 0; i < PARTITION_SIZE / BLOCK_SIZE; ++i) {
         if (!hasBlock(part, i)) {
@@ -275,6 +273,7 @@ void ClientFile::endPartition(int part) {
 
 std::vector<char> ClientFile::getBlockData(int part, int block) {
     if (!hasPartition(part)) {
+        std::cout << "pas de partition" << std::endl;
         return std::vector<char>();
     }
     lock();
@@ -364,7 +363,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         std::cout << "postBegin" << std::endl;
     }
     std::cout << "openFile" << std::endl;
-    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out);
+    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out | std::fstream::app);
     std::cout << "estOpen" << std::endl;
 
     long long offset = computeFileOffset(part, block);
@@ -374,7 +373,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     }
     std::cout << "seek" << std::endl;
     file.seekp(offset, file.beg);
-    std::cout << "write" << std::endl;
+    std::cout << "write block " << block <<  std::endl;
     file.write(data.data(), data.size());
 
     file.close();
