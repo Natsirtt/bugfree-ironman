@@ -89,12 +89,10 @@ char* DataPacket::toData() {
 }
 
 void DataPacket::exec(std::string adresse) {
-    std::cout << "exec DataPacket" << std::endl;
     std::vector<char> data(mBlockData, mBlockData + mBlockSize);
     ClientKnowledgeBase::get().setBlockData(mFileName, mPartition, mBlockNb, data);
-    std::cout << "finSetBlock" << std::endl;
     int next = ClientKnowledgeBase::get().getNextFreeBlockNumber(mFileName, mPartition);
-    std::cout << "prochain block " << next << std::endl;
+    //std::cout << "partition " << mPartition << " prochain block " << next << std::endl;
     if (next > 0) {
         IPacket* packet = new ACKPacket(mFileName, mPartition, mBlockNb, next);
         AnswerQueue::get().sendToClient(packet, adresse);

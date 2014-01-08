@@ -111,7 +111,7 @@ void Interface::draw() {
         line.str("");
         line.clear();
         if (i < (int)mFiles.size()) {
-            line << mFiles[i]->getName() << " - " << mFiles[i]->getSize() << " octets";
+            line << mFiles[i]->getName() << " - " << mFiles[i]->getSize() << " octets " << mFiles[i]->getCompletion() << "%";
         } else {
             line << "";
         }

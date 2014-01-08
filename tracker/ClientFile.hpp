@@ -38,6 +38,9 @@ public:
     int getNextFreeBlockNumber(int part);
     long long getSize();
 
+    float getPartitionCompletion(int part);
+    float getCompletion();
+
     /**
      * Envoie le fichier au tracker.
      */

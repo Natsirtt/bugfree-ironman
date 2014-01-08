@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
             //Synchronisation avec le tracker
             ClientKnowledgeBase::get().sendAlive(trackerIP);
             ClientKnowledgeBase::get().sendAll(trackerIP);
-            //Interface::get().start();
+            Interface::get().start();
         }
 
         while (State::get().isRunning()) {
@@ -103,8 +103,8 @@ int main(int argc, char* argv[]) {
         }
 
         if (port != TRACKER_PORT) {
-            //Interface::get().stop();
-            //Interface::get().reset();
+            Interface::get().stop();
+            Interface::get().reset();
             ClientKnowledgeBase::get().shutdown();
         }
 

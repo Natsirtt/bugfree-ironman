@@ -8,11 +8,13 @@
 
 #include "../KnowledgeBase.hpp"
 
-FileUpdatePacket::FileUpdatePacket(std::string filename, int bitmapSize, char *partitionBitmap)
-                        : mFileName(filename), mBitmapSize(bitmapSize), mPartitionBitmap(partitionBitmap) {
+FileUpdatePacket::FileUpdatePacket(std::string filename, int bitmapSize, char* partitionBitmap)
+                        : mFileName(filename), mBitmapSize(bitmapSize) {
     if (mBitmapSize > MAX_BITMAP_SIZE) {
         throw std::runtime_error("Erreur lors du traitement d'un paquet FILEUPDATE : taille de la bitmap trop eleve\n");
     }
+    mPartitionBitmap = new char[mBitmapSize];
+    memcpy(mPartitionBitmap, partitionBitmap, mBitmapSize);
 }
 
 FileUpdatePacket::FileUpdatePacket(char* data, int size) {
@@ -33,6 +35,7 @@ FileUpdatePacket::FileUpdatePacket(char* data, int size) {
 }
 
 FileUpdatePacket::~FileUpdatePacket() {
+    delete[] mPartitionBitmap;
 }
 
 unsigned int FileUpdatePacket::getOpcode() {
@@ -47,6 +50,7 @@ char* FileUpdatePacket::toData() {
 
     std::cout << "FileUpdate" << std::endl;
     char* data = new char[getSize()];
+    memset(data, 0, getSize());
 
     int* opcode = (int*) data;
     *opcode = htonl(getOpcode());

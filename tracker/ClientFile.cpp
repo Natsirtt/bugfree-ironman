@@ -14,7 +14,6 @@
 #include "AnswerQueue.hpp"
 
 ClientFile::ClientFile() : mFilename(""), mFileSize(0) {
-    std::cout << "Nouveau fichier vide" << std::endl;
 }
 
 bool ClientFile::isCorrectFile() {
@@ -23,13 +22,11 @@ bool ClientFile::isCorrectFile() {
 
 ClientFile::ClientFile(std::string filename, long long int fileSize, bool init) : mFilename(filename), mFileSize(fileSize)
 {
-    std::cout << "ClientFile(std::string filename, long long int fileSize)" << std::endl;
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
         perror("Erreur init mutex");
         throw std::runtime_error("Erreur init mutex dans ClientFile");
     }
-    std::cout << fileSize << std::endl;
     long long int part_size = PARTITION_SIZE;
     long long int nbOfPart = fileSize / part_size;
     if (fileSize % part_size != 0) {
@@ -262,7 +259,11 @@ void ClientFile::addBlock(int part, int block) {
 void ClientFile::beginPartition(int part) {
     if (!isPartitionInProgress(part)) {
         setNthBit(mPartitionsInProgress, part);
-        mBlocks[part].resize(BLOCK_PER_PARTITION);
+        if (part == (int)(mPartitions.size() - 1)) {
+            mBlocks[part].resize((mFileSize / PARTITION_SIZE) / BLOCK_SIZE);
+        } else {
+            mBlocks[part].resize(BLOCK_PER_PARTITION);
+        }
     }
 }
 
@@ -447,10 +448,41 @@ void ClientFile::createFile(std::string& filename, long long int size) {
     std::fstream newFile(filename.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
     newFile << " ";
     newFile.close();
-    std::cout << "create file " << filename << " " << size << std::endl;;
     if (truncate(filename.c_str(), size) == -1) {
         perror("Erreur au truncate1");
         throw std::runtime_error("Erreur de truncate1");
     }
 }
 
+float ClientFile::getPartitionCompletion(int part) {
+    float completion = 0.0;
+    for (unsigned int i = 0; i < mBlocks[part].size(); ++i) {
+        if (hasBlock(part, i)) {
+            completion += 100.0 / (float)mBlocks[part].size();
+        }
+    }
+    return completion;
+}
+
+float ClientFile::getCompletion() {
+    long long int part_size = PARTITION_SIZE;
+    long long int nbOfPart = mFileSize / part_size;
+    if (mFileSize % part_size != 0) {
+        nbOfPart++;
+    }
+    int bitmapSize = nbOfPart / 8;
+    if ((nbOfPart % 8) != 0) {
+        bitmapSize++;
+    }
+
+    float completion = 0.0;
+
+    for (int i = 0; i < bitmapSize; ++i) {
+        if (hasPartition(i)) {
+            completion += 100.0 / (float) bitmapSize;
+        } else if (isPartitionInProgress(i)) {
+            completion += (100.0 / (float) bitmapSize) * (getPartitionCompletion(i) / 100.0);
+        }
+    }
+    return completion;
+}
