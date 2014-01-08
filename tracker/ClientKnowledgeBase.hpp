@@ -62,6 +62,7 @@ class ClientKnowledgeBase {
         std::map<std::string, ClientFile> mFiles;
         //Mutex pour rendre l'instance thread safe
         pthread_mutex_t mMutex;
+
 };
 
 

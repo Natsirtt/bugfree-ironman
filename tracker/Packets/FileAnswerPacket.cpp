@@ -10,6 +10,7 @@
 #include "RRQPacket.hpp"
 #include "WRQPacket.hpp"
 #include "../AnswerQueue.hpp"
+#include "../Defines.hpp"
 
 FileAnswerPacket::FileAnswerPacket(std::string filename, bool send, long long int filesize, std::vector<Association> assoc)
                                 : mFileName(filename), mSend(send), mFilesize(filesize), mAssoc(assoc) {
@@ -92,7 +93,11 @@ void FileAnswerPacket::exec(std::string adresse) {
         } else {
             int firstBlock = ClientKnowledgeBase::get().getNextFreeBlockNumber(mFileName, mAssoc[i].partition);
             packet = new RRQPacket(mFileName, mAssoc[i].partition, firstBlock);
-            // TODO ajouter la taille dans la clientKnowledgeBase
+            // TODO ajouter la taille:: dans la clientKnowledgeBase
+        }
+
+        if (addr == "127.0.0.1") {
+            addr = State::get().getTrackerIp();
         }
 
         AnswerQueue::get().sendToClient(packet, addr);

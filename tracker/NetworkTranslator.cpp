@@ -11,6 +11,7 @@
 #include "Packets/FileRequestPacket.hpp"
 #include "Packets/FileAnswerPacket.hpp"
 #include "Packets/FileUpdatePacket.hpp"
+#include "Defines.hpp"
 
 NetworkTranslator::NetworkTranslator(SocketUDP* socket) : mSocket(socket) {
 
@@ -24,6 +25,10 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
     int sizeRead = 0;
     if ((sizeRead = mSocket->read(data, MAX_PACKET_SIZE, adresse, port, timeout)) <= 0) {
         return NULL;
+    }
+    std::string ip = State::get().getTrackerIp();
+    if (adresse == "127.0.0.1") {
+        adresse.swap(ip);
     }
 
     int* opcodePtr = (int*) data;

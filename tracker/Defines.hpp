@@ -33,6 +33,15 @@ class State {
             mRunning = false;
         }
 
+        void setTrackerIp(std::string ip) {
+            mTrackerIp = ip;
+        }
+
+        std::string getTrackerIp() {
+            return mTrackerIp;
+        }
+
+
     private:
         static void handler_function (int parameter) {
             if (parameter != SIGALRM) {
@@ -57,6 +66,7 @@ class State {
         }
 
         bool mRunning;
+        std::string mTrackerIp;
 };
 
 #endif // DEFINES_HPP

@@ -44,6 +44,8 @@ int FileUpdatePacket::getSize() {
 }
 
 char* FileUpdatePacket::toData() {
+
+    std::cout << "FileUpdate" << std::endl;
     char* data = new char[getSize()];
 
     int* opcode = (int*) data;

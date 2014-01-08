@@ -28,7 +28,7 @@ void help() {
 int main(int argc, char* argv[]) {
     try {
         int port = TRACKER_PORT;
-        std::string trackerIP;
+        std::string trackerIP("127.0.0.1");
         int nbThreads = THREAD_NUMBER;
         try {
             if ((argc > 1) && (strcmp(argv[1], "CLIENT") == 0)) {
@@ -50,6 +50,8 @@ int main(int argc, char* argv[]) {
         } catch (...) {
             help();
         }
+
+        State::get().setTrackerIp(trackerIP);
 
         State::get();
 
