@@ -90,7 +90,7 @@ void AnswerQueue::stop() {
 }
 
 AnswerQueue::Answer AnswerQueue::getNextAnswer() {
-    sembuf sop = {0, -1, SEM_UNDO};
+    sembuf sop = {0, -1, 0};
     struct timespec timeout;
     timeout.tv_sec = 10;
     timeout.tv_nsec = 0;
