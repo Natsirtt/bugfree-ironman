@@ -68,6 +68,7 @@ std::vector<Association> File::getClientsToAsk(std::string& adresse) {
                 Association assoc;
                 assoc.partition = i;
                 strncpy(assoc.ipClient, (*it)->getAdresse().c_str(), 60);
+                assoc.ipClient[59] = '\0';
                 assocs.push_back(assoc);
                 break;
             }

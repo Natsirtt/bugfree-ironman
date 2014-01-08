@@ -49,12 +49,6 @@ DataPacket::DataPacket(char* data, int size) {
     mBlockData = new char[maxSize];
     memcpy(mBlockData, blockData, maxSize);
 
-    std::stringstream ss;
-    ss << mBlockNb;
-    std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
-    file2.write(mBlockData, mBlockSize);
-    file2.close();
-
 }
 
 DataPacket::~DataPacket() {
@@ -91,11 +85,6 @@ char* DataPacket::toData() {
     char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int) + sizeof(int));
     int maxSize = MAX_DATA_SIZE;
     memcpy(blockData, mBlockData, std::min(mBlockSize, maxSize));
-    std::stringstream ss;
-    ss << mBlockNb;
-    std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
-    file2.write(mBlockData, mBlockSize);
-    file2.close();
     return data;
 }
 

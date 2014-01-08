@@ -97,6 +97,7 @@ std::vector<Association> KnowledgeBase::getClientsToSend(std::string& filename, 
                     Association assoc;
                     assoc.partition = i;
                     strncpy(assoc.ipClient, it->second.getAdresse().c_str(), 60);
+                    assoc.ipClient[59] = '\0';
                     assocs.push_back(assoc);
                     break;
                 }
