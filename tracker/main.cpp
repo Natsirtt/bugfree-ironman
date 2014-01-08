@@ -80,10 +80,8 @@ int main(int argc, char* argv[]) {
             std::cout << "Demarrage en mode client sur le port : " << port << " vers le tracker : " << trackerIP << std::endl;
             ClientKnowledgeBase::get();
             //Synchronisation avec le tracker
-            std::cout << "Debut d'envoie" << std::endl;
             ClientKnowledgeBase::get().sendAlive(trackerIP);
             ClientKnowledgeBase::get().sendAll(trackerIP);
-            std::cout << "Tout est envoye" << std::endl;
             //Interface::get().start();
         }
 

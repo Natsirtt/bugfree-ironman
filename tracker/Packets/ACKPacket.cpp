@@ -71,11 +71,10 @@ char* ACKPacket::toData() {
 }
 
 void ACKPacket::exec(std::string adresse) {
-    std::cout << "exec ACKPacket" << std::endl;
     if (mNextBlock >= 0) {
         try {
             long long int filesize = ClientKnowledgeBase::get().getFileSize(mFileName);
-            if ((mPartition * PARTITION_SIZE + mNextBlock * BLOCK_SIZE) < filesize) {
+            if (((mPartition * PARTITION_SIZE + mNextBlock * BLOCK_SIZE) < filesize) && (mNextBlock < BLOCK_PER_PARTITION)) {
                 std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
 
                 IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());

@@ -44,7 +44,10 @@ bool isNthBitSet(char c, int n) {
 
 bool Client::hasPartition(std::string& filename, int partNb) {
     std::vector<char> v = mFiles[filename];
-    return (v.size() >= (unsigned int)(partNb / 8)) && isNthBitSet(v[partNb / 8], partNb % 8);
+    if (partNb < (int)(v.size() * 8)) {
+        return isNthBitSet(v[partNb / 8], partNb % 8);
+    }
+    return false;
 }
 
 int Client::getPartitionNumber(std::string& filename) {

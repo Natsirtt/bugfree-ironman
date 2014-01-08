@@ -299,23 +299,17 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
 }
 
 void ClientFile::setBlockData(int part, int block, std::vector<char>& data) {
-    std::cout << "postLock" << std::endl;
     lock();
-    std::cout << "estLock" << std::endl;
     if (hasBlock(part, block)) {
         unlock();
         return;
     }
-    std::cout << "hasBlock" << std::endl;
 
     std::string absoluteFileName = std::string(FILES_PATH) + mFilename;
 
     if (!isPartitionAcquiredOrInProgress(part)) {
-        std::cout << "non acquis " << mPartitions.size() << std::endl;
         int firstPart = getFirstUsedBit(mPartitions);
-        std::cout << "getFirst " << firstPart << std::endl;
         int lastPart = getLastUsedBit(mPartitions);
-        std::cout << "getLast " << lastPart << std::endl;
         if (firstPart == -1) {
             createFile(absoluteFileName, std::min(PARTITION_SIZE, mFileSize));
         } else {
@@ -360,14 +354,9 @@ void ClientFile::setBlockData(int part, int block, std::vector<char>& data) {
                 }
             }
         }
-        std::cout << "preBegin" << std::endl;
         beginPartition(part);
-        std::cout << "postBegin" << std::endl;
     }
-    std::cout << "openFile" << std::endl;
     std::fstream file(absoluteFileName.c_str());
-    std::cout << absoluteFileName << " estOpen " << file.good() << std::endl;
-
     long long offset = computeFileOffset(part, block);
 
     if (offset > mFileSize) {

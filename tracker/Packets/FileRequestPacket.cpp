@@ -69,7 +69,7 @@ void FileRequestPacket::exec(std::string adresse) {
         std::vector<Association> assocs;
         int fileSize = 0;
         if (mSend) {
-            std::cout << "exec fileRequest " << mFileName << " " << mFilesize << std::endl;
+            std::cout << "exec fileRequest " << mFileName << " taille " << mFilesize << std::endl;
             long long int part_size = PARTITION_SIZE;
             File f(mFileName, mFilesize, part_size);
             KnowledgeBase::get().addFile(f);
@@ -79,7 +79,6 @@ void FileRequestPacket::exec(std::string adresse) {
                 std::cout << assocs[i].partition << " " << assocs[i].ipClient << std::endl;
             }
         } else {
-            std::cout << "exec fileRequest " << mFileName << std::endl;
             File& f = KnowledgeBase::get().getFile(mFileName);
             fileSize = f.getSize();
             assocs = f.getClientsToAsk(adresse);

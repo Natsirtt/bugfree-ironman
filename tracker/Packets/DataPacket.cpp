@@ -52,7 +52,7 @@ DataPacket::DataPacket(char* data, int size) {
 }
 
 DataPacket::~DataPacket() {
-    delete mBlockData;
+    delete[] mBlockData;
 }
 
 unsigned int DataPacket::getOpcode() {
