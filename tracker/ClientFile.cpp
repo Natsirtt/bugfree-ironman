@@ -366,9 +366,6 @@ void ClientFile::setBlockData(int part, int block, std::vector<char>& data) {
     }
     std::cout << "openFile" << std::endl;
     std::fstream file(absoluteFileName.c_str());
-    std::stringstream ss;
-    ss << block;
-    std::fstream file2(ss.str().c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
     std::cout << absoluteFileName << " estOpen " << file.good() << std::endl;
 
     long long offset = computeFileOffset(part, block);
@@ -376,12 +373,8 @@ void ClientFile::setBlockData(int part, int block, std::vector<char>& data) {
     if (offset > mFileSize) {
         throw std::runtime_error("Offset de lecture supérieur à la taille du fichier");
     }
-    std::cout << "seek " << offset << std::endl;
     file.seekp(offset);
-    std::cout << "write block " << block << "taille " << data.size() << std::endl;
     file.write(data.data(), data.size());
-    file2.write(data.data(), data.size());
-    file2.close();
     file.close();
     addBlock(part, block);
 

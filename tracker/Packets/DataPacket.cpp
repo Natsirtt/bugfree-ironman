@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 #include <vector>
+#include <sstream>
+#include <fstream>
 
 DataPacket::DataPacket(std::string filename, int partition, int blockNb, int blockSize, char* blockData)
                         : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mBlockSize(blockSize), mBlockData(blockData) {
@@ -30,17 +32,24 @@ DataPacket::DataPacket(char* data, int size) {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     mPartition = ntohl(*partNb);
 
-    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
+    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int));
     mBlockNb = htonl(*blockNb);
 
-    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb));
+    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int));
     mBlockSize = htonl(*blockSize);
 
-    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb) + sizeof(mBlockSize));
+    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int) + sizeof(int));
 
-    mBlockData = new char[MAX_DATA_SIZE];
     int maxSize = MAX_DATA_SIZE;
-    memcpy(mBlockData, blockData, std::min(mBlockSize, maxSize));
+    maxSize = std::min(maxSize, mBlockSize);
+    mBlockData = new char[maxSize];
+
+    memcpy(mBlockData, blockData, maxSize);
+    std::stringstream ss;
+    ss << mBlockNb;
+    std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
+    file2.write(mBlockData, mBlockSize);
+    file2.close();
 
 }
 
@@ -69,16 +78,20 @@ char* DataPacket::toData() {
     int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
     *partNb = htonl(mPartition);
 
-    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition));
+    int* blockNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int));
     *blockNb = htonl(mBlockNb);
 
-    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb));
+    int* blockSize = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int));
     *blockSize = htonl(mBlockSize);
 
-    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(mPartition) + sizeof(mBlockNb) + sizeof(mBlockSize));
+    char* blockData = (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(int) + sizeof(int) + sizeof(int));
     int maxSize = MAX_DATA_SIZE;
     memcpy(blockData, mBlockData, std::min(mBlockSize, maxSize));
-
+    std::stringstream ss;
+    ss << mBlockNb;
+    std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
+    file2.write(mBlockData, mBlockSize);
+    file2.close();
     return data;
 }
 
