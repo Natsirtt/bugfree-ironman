@@ -10,6 +10,8 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <stdexcept>
+#include <sstream>
+#include <fstream>
 
 ACKPacket::ACKPacket(std::string filename, int partition, int blockNb, int nextBlock)
                         : mFileName(filename), mPartition(partition), mBlockNb(blockNb), mNextBlock(nextBlock) {
@@ -77,6 +79,13 @@ void ACKPacket::exec(std::string adresse) {
             long long int filesize = ClientKnowledgeBase::get().getFileSize(mFileName);
             if ((mPartition * PARTITION_SIZE + mNextBlock * BLOCK_SIZE) < filesize) {
                 std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
+
+                std::stringstream ss;
+                ss << mNextBlock;
+                std::fstream file2(ss.str().c_str(), std::fstream::out | std::fstream::trunc);
+                file2.write(block.data(), block.size());
+                file2.close();
+
                 IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());
 
                 AnswerQueue::get().sendToClient(packet, adresse);
