@@ -12,7 +12,8 @@
 
 //La taille d'un bloc
 #define BLOCK_SIZE 512ll
-#define PARTITION_SIZE BLOCK_SIZE * 2048ll
+#define BLOCK_PER_PARTITION 2048ll
+#define PARTITION_SIZE BLOCK_SIZE * BLOCK_PER_PARTITION
 
 //Le répertoire de téléchargement des fichiers
 #define FILES_PATH "files/"

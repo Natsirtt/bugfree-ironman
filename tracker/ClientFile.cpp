@@ -39,6 +39,7 @@ ClientFile::ClientFile(std::string filename, long long int fileSize, bool init) 
         bitmapSize++;
     }
     mPartitions.resize(bitmapSize);
+    mPartitionsInProgress.resize(bitmapSize);
     if (init) {
         for (long long i = 0; i < nbOfPart; ++i) {
             //std::cout << i << std::endl;
@@ -211,7 +212,7 @@ bool ClientFile::isNthBitSet(char c, int n) {
 }
 
 bool ClientFile::isNthBitSet(std::vector<char>& bitmap, int n) {
-    if ((n / 8) << (int)bitmap.size()) {
+    if (n < (int)(bitmap.size() * 8)) {
         return isNthBitSet(bitmap.at(n / 8), n % 8);
     }
     return false;
@@ -260,23 +261,20 @@ void ClientFile::addBlock(int part, int block) {
 }
 
 void ClientFile::beginPartition(int part) {
-    lock();
     if (!isPartitionInProgress(part)) {
         setNthBit(mPartitionsInProgress, part);
+        mBlocks[part].resize(BLOCK_PER_PARTITION);
     }
-    unlock();
 }
 
 void ClientFile::endPartition(int part) {
-    lock();
     //if (!hasPartition(part)) {
         setNthBit(mPartitions, part);
     //}
-    unlock();
 }
 
 std::vector<char> ClientFile::getBlockData(int part, int block) {
-    if (!hasBlock(part, block)) {
+    if (!hasPartition(part)) {
         return std::vector<char>();
     }
     lock();
@@ -312,14 +310,16 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     std::string absoluteFileName = std::string(FILES_PATH) + mFilename;
 
     if (!isPartitionAcquiredOrInProgress(part)) {
-        std::cout << "non acquis" << std::endl;
+        std::cout << "non acquis " << mPartitions.size() << std::endl;
         int firstPart = getFirstUsedBit(mPartitions);
+        std::cout << "getFirst " << firstPart << std::endl;
         int lastPart = getLastUsedBit(mPartitions);
-        if (!((firstPart < part) && (part < lastPart))) {
-            std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
-            if (!file.good()) {
-                createFile(absoluteFileName, std::min(PARTITION_SIZE, mFileSize));
-            } else {
+        std::cout << "getLast " << lastPart << std::endl;
+        if (firstPart == -1) {
+            createFile(absoluteFileName, std::min(PARTITION_SIZE, mFileSize));
+        } else {
+            if ((part < firstPart) || (part > lastPart)) {
+                std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
                 //file.seekg(0, file.end);
                 //long long currentSize = file.tellg();
                 //file.seekg(0, file.beg);
@@ -359,10 +359,12 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
                 }
             }
         }
+        std::cout << "preBegin" << std::endl;
         beginPartition(part);
+        std::cout << "postBegin" << std::endl;
     }
     std::cout << "openFile" << std::endl;
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::out);
+    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out);
     std::cout << "estOpen" << std::endl;
 
     long long offset = computeFileOffset(part, block);
@@ -382,8 +384,8 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     unlock();
 }
 
-int ClientFile::getFirstFreeBit(std::vector<char> bitmap) {
-    for (unsigned int i = 0; i < bitmap.size() * sizeof(char); ++i) {
+int ClientFile::getFirstFreeBit(std::vector<char>& bitmap) {
+    for (unsigned int i = 0; i < (bitmap.size() * 8); ++i) {
         if (!isNthBitSet(bitmap, i)) {
             return i;
         }
@@ -391,8 +393,8 @@ int ClientFile::getFirstFreeBit(std::vector<char> bitmap) {
     return -1;
 }
 
-int ClientFile::getFirstUsedBit(std::vector<char> bitmap) {
-    for (unsigned int i = 0; i < bitmap.size() * sizeof(char); ++i) {
+int ClientFile::getFirstUsedBit(std::vector<char>& bitmap) {
+    for (unsigned int i = 0; i < (bitmap.size() * 8); ++i) {
         if (isNthBitSet(bitmap, i)) {
             return i;
         }
@@ -400,8 +402,8 @@ int ClientFile::getFirstUsedBit(std::vector<char> bitmap) {
     return -1;
 }
 
-int ClientFile::getLastFreeBit(std::vector<char> bitmap) {
-    for (unsigned int i = bitmap.size() * sizeof(char); i > 0; ++i) {
+int ClientFile::getLastFreeBit(std::vector<char>& bitmap) {
+    for (int i = (bitmap.size() * 8) - 1; i >= 0; --i) {
         if (!isNthBitSet(bitmap, i)) {
             return i;
         }
@@ -409,8 +411,8 @@ int ClientFile::getLastFreeBit(std::vector<char> bitmap) {
     return -1;
 }
 
-int ClientFile::getLastUsedBit(std::vector<char> bitmap) {
-    for (unsigned int i = bitmap.size() * sizeof(char); i > 0; ++i) {
+int ClientFile::getLastUsedBit(std::vector<char>& bitmap) {
+    for (int i = ((bitmap.size() * 8) - 1); i >= 0; --i) {
         if (isNthBitSet(bitmap, i)) {
             return i;
         }
@@ -426,16 +428,16 @@ int ClientFile::getNextFreeBlockNumber(int part) {
 }
 
 long long ClientFile::computeFileOffset(int partitionNb, int block) {
-    int firstPartition = INT_MAX;
-
-    lock();
-
-    for (unsigned int i = 0; i < mPartitionsInProgress.size(); ++i) {
-        if (mPartitionsInProgress.at(i) < firstPartition) {
-            firstPartition = mPartitionsInProgress.at(i);
-        }
+    int firstPartition = getFirstFreeBit(mPartitionsInProgress);
+    int tmp = getFirstFreeBit(mPartitions);
+    if ((tmp < firstPartition) && (tmp != -1)) {
+        firstPartition = tmp;
     }
-    unlock();
+
+    if (firstPartition == -1) {
+        return 0 + block * BLOCK_SIZE;
+    }
+
     return (partitionNb - firstPartition) * PARTITION_SIZE + block * BLOCK_SIZE;
 }
 

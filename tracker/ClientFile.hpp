@@ -31,10 +31,10 @@ public:
     std::vector<char> getBlockData(int part, int block);
     void setBlockData(int part, int block, std::vector<char> data);
 
-    int getFirstFreeBit(std::vector<char> bitmap);
-    int getLastFreeBit(std::vector<char> bitmap);
-    int getFirstUsedBit(std::vector<char> bitmap);
-    int getLastUsedBit(std::vector<char> bitmap);
+    int getFirstFreeBit(std::vector<char>& bitmap);
+    int getLastFreeBit(std::vector<char>& bitmap);
+    int getFirstUsedBit(std::vector<char>& bitmap);
+    int getLastUsedBit(std::vector<char>& bitmap);
     int getNextFreeBlockNumber(int part);
     long long getSize();
 

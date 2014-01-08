@@ -73,7 +73,7 @@ void ACKPacket::exec(std::string adresse) {
     std::cout << "exec ACKPacket" << std::endl;
     if (mNextBlock >= 0) {
         std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
-
+        std::cout << "Recuperation d'un block " << block.size() << std::endl;
         IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());
 
         AnswerQueue::get().sendToClient(packet, adresse);
