@@ -288,12 +288,13 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
 
     char buffer[BLOCK_SIZE];
     file.read(buffer, BLOCK_SIZE);
+    int n = file.gcount();
 
     file.close();
 
     unlock();
 
-    return std::vector<char>(buffer, buffer + BLOCK_SIZE);
+    return std::vector<char>(buffer, buffer + n);
 }
 
 void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
@@ -363,7 +364,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         std::cout << "postBegin" << std::endl;
     }
     std::cout << "openFile" << std::endl;
-    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out | std::fstream::app);
+    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out | std::fstream::ate);
     std::cout << "estOpen" << std::endl;
 
     long long offset = computeFileOffset(part, block);
