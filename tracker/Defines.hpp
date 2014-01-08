@@ -57,7 +57,6 @@ class State {
                 SIGFPE,
                 SIGILL,
                 SIGINT,
-                SIGSEGV,
                 SIGTERM,
                 SIGALRM
             };

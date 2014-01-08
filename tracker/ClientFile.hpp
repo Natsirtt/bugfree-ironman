@@ -29,7 +29,7 @@ public:
     void addBlock(int part, int block);
 
     std::vector<char> getBlockData(int part, int block);
-    void setBlockData(int part, int block, std::vector<char> data);
+    void setBlockData(int part, int block, std::vector<char>& data);
 
     int getFirstFreeBit(std::vector<char>& bitmap);
     int getLastFreeBit(std::vector<char>& bitmap);

@@ -278,14 +278,14 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
         return std::vector<char>();
     }
     lock();
-    std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
+    std::fstream file((std::string(FILES_PATH) + mFilename).c_str());
 
     long long offset = computeFileOffset(part, block);
 
     if (offset > mFileSize) {
         throw std::runtime_error("Offset de lecture supérieur à la taille du fichier");
     }
-    file.seekg(offset, file.beg);
+    file.seekg(offset);
 
     char buffer[BLOCK_SIZE];
     file.read(buffer, BLOCK_SIZE);
@@ -298,12 +298,12 @@ std::vector<char> ClientFile::getBlockData(int part, int block) {
     return std::vector<char>(buffer, buffer + n);
 }
 
-void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
+void ClientFile::setBlockData(int part, int block, std::vector<char>& data) {
     std::cout << "postLock" << std::endl;
     lock();
     std::cout << "estLock" << std::endl;
     if (hasBlock(part, block)) {
-        std::cout << "return" << std::endl;
+        unlock();
         return;
     }
     std::cout << "hasBlock" << std::endl;
@@ -351,7 +351,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
                         throw std::runtime_error("Error of rename");
                     }
                 } else {
-                    long long newSize = (firstPart - part + 1) * PARTITION_SIZE;
+                    long long newSize = (part - firstPart + 1) * PARTITION_SIZE;
                     std::cout << (std::string(FILES_PATH) + mFilename).c_str() << " " << PARTITION_SIZE << std::endl;
                     if (truncate(absoluteFileName.c_str(), newSize) == -1) {
                         perror("Erreur au truncate3");
@@ -365,11 +365,11 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         std::cout << "postBegin" << std::endl;
     }
     std::cout << "openFile" << std::endl;
-    std::fstream file(absoluteFileName.c_str(), std::fstream::binary | std::fstream::out | std::fstream::ate);
+    std::fstream file(absoluteFileName.c_str());
     std::stringstream ss;
     ss << block;
     std::fstream file2(ss.str().c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
-    std::cout << "estOpen" << std::endl;
+    std::cout << absoluteFileName << " estOpen " << file.good() << std::endl;
 
     long long offset = computeFileOffset(part, block);
 
@@ -382,9 +382,7 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     file.write(data.data(), data.size());
     file2.write(data.data(), data.size());
     file2.close();
-    file.flush();
     file.close();
-
     addBlock(part, block);
 
     unlock();
