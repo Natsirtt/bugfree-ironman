@@ -9,7 +9,7 @@ class ClientFile {
 
 public:
     ClientFile();
-    ClientFile(std::string filename, long long int fileSize);
+    ClientFile(std::string filename, long long int fileSize, bool init);
     ClientFile(std::string filename);
 
     std::string getName();
@@ -46,6 +46,8 @@ public:
 protected:
 
 private:
+    void createFile(std::string& filename, long long int size);
+
     typedef std::vector<char> bitmap_t;
     //La bitmap des partitions possédées
     bitmap_t mPartitions;

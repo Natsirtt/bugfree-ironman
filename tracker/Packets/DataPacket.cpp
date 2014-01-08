@@ -90,7 +90,6 @@ void DataPacket::exec(std::string adresse) {
     int next = ClientKnowledgeBase::get().getNextFreeBlockNumber(mFileName, mPartition);
     std::cout << "prochain block " << next << std::endl;
     if (next > 0) {
-
         IPacket* packet = new ACKPacket(mFileName, mPartition, mBlockNb, next);
         AnswerQueue::get().sendToClient(packet, adresse);
     }

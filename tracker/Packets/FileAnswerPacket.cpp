@@ -89,7 +89,8 @@ void FileAnswerPacket::exec(std::string adresse) {
         IPacket* packet = NULL;
 
         if (mSend) {
-            packet = new WRQPacket(mFileName, mFilesize, mAssoc[i].partition);
+            long long int filesize = ClientKnowledgeBase::get().getFile(mFileName).getSize();
+            packet = new WRQPacket(mFileName, filesize, mAssoc[i].partition);
         } else {
             int firstBlock = ClientKnowledgeBase::get().getNextFreeBlockNumber(mFileName, mAssoc[i].partition);
             packet = new RRQPacket(mFileName, mAssoc[i].partition, firstBlock);

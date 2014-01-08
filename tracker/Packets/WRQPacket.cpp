@@ -63,7 +63,7 @@ char* WRQPacket::toData() {
 void WRQPacket::exec(std::string adresse) {
     std::cout << "exec WRQPacket" << std::endl;
 
-    ClientKnowledgeBase::get().addClientFile(ClientFile(mFileName, mFileSize));
+    ClientKnowledgeBase::get().addClientFile(ClientFile(mFileName, mFileSize, false));
     IPacket* packet = new ACKPacket(mFileName, mPartition, -1, 0);
 
     AnswerQueue::get().sendToClient(packet, adresse);

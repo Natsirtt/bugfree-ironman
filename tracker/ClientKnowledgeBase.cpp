@@ -43,7 +43,7 @@ ClientKnowledgeBase::ClientKnowledgeBase() {
         std::string entryName(entry->d_name);
         if ((entry->d_name[0] == '.') && (entryName != std::string(".")) && entryName != std::string("..")) {
             ClientFile cf(entryName);
-            mFiles[cf.getName()] = cf;
+            mFiles.insert(std::pair<std::string, ClientFile>(cf.getName(), cf));
             filesWithMetadata.push_back(cf.getName());
         }
     }
@@ -70,8 +70,8 @@ ClientKnowledgeBase::ClientKnowledgeBase() {
                 file.seekg(0, file.end);
                 long long len = file.tellg();
                 file.close();
-                ClientFile cf(std::string(entry->d_name), len);
-                mFiles[cf.getName()] = cf;
+                ClientFile cf(std::string(entry->d_name), len, true);
+                mFiles.insert(std::pair<std::string, ClientFile>(cf.getName(), cf));
             }
         }
     }
@@ -165,5 +165,14 @@ void ClientKnowledgeBase::sendAlive(std::string& trackerIP) {
 }
 
 void ClientKnowledgeBase::addClientFile(ClientFile cf) {
-    mFiles[cf.getName()] = cf;
+    if (mFiles.find(cf.getName()) == mFiles.end()) {
+        mFiles[cf.getName()] = cf;
+    }
+}
+
+ClientFile& ClientKnowledgeBase::getFile(std::string& name) {
+    if (mFiles.find(name) == mFiles.end()) {
+        throw std::runtime_error("Impossible de trouver le fichier");
+    }
+    return mFiles[name];
 }

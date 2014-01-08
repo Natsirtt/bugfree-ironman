@@ -20,7 +20,7 @@ bool ClientFile::isCorrectFile() {
     return mFilename != "";
 }
 
-ClientFile::ClientFile(std::string filename, long long int fileSize) : mFilename(filename), mFileSize(fileSize)
+ClientFile::ClientFile(std::string filename, long long int fileSize, bool init) : mFilename(filename), mFileSize(fileSize)
 {
     std::cout << "ClientFile(std::string filename, long long int fileSize)" << std::endl;
     if (pthread_mutex_init(&mMutex, NULL) != 0)
@@ -39,10 +39,13 @@ ClientFile::ClientFile(std::string filename, long long int fileSize) : mFilename
         bitmapSize++;
     }
     mPartitions.resize(bitmapSize);
-    for (long long i = 0; i < nbOfPart; ++i) {
-        //std::cout << i << std::endl;
-        endPartition(i);
+    if (init) {
+        for (long long i = 0; i < nbOfPart; ++i) {
+            //std::cout << i << std::endl;
+            endPartition(i);
+        }
     }
+
 }
 
 ClientFile::ClientFile(std::string filename)
@@ -215,7 +218,7 @@ bool ClientFile::isNthBitSet(std::vector<char>& bitmap, int n) {
 }
 
 void ClientFile::setNthBit(std::vector<char> &bitmap, int n) {
-    char c = bitmap[n / 8];
+    char c = bitmap.at(n / 8);
     char mask = (char) 1; //00000001
     mask = mask << (n % 8);
     bitmap[n / 8] = c | mask;
@@ -306,6 +309,8 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
     }
     std::cout << "hasBlock" << std::endl;
 
+    std::string absoluteFileName = std::string(FILES_PATH) + mFilename;
+
     if (!isPartitionAcquiredOrInProgress(part)) {
         std::cout << "non acquis" << std::endl;
         int firstPart = getFirstUsedBit(mPartitions);
@@ -313,53 +318,41 @@ void ClientFile::setBlockData(int part, int block, std::vector<char> data) {
         if (!((firstPart < part) && (part < lastPart))) {
             std::fstream file((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::in);
             if (!file.good()) {
-                std::fstream newFile((std::string(FILES_PATH) + mFilename).c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
-                newFile << " ";
-                newFile.close();
-                std::cout << (std::string(FILES_PATH) + mFilename).c_str() << " " << PARTITION_SIZE << std::endl;
-                if (truncate((std::string(FILES_PATH) + mFilename).c_str(), PARTITION_SIZE) == -1) {
-                    perror("Erreur au truncate1");
-                    throw std::runtime_error("Erreur de truncate1");
-                }
+                createFile(absoluteFileName, std::min(PARTITION_SIZE, mFileSize));
             } else {
-                file.seekg(0, file.end);
-                long long currentSize = file.tellg();
-                file.seekg(0, file.beg);
+                //file.seekg(0, file.end);
+                //long long currentSize = file.tellg();
+                //file.seekg(0, file.beg);
 
-                long long gap = 0;
                 if (firstPart > part) {
-                    gap = (firstPart - part) * PARTITION_SIZE;
+                    long long gap = (firstPart - part) * PARTITION_SIZE;
+                    long long newSize = (firstPart - part + 1) * PARTITION_SIZE;
                     std::string newFilePath = std::string(FILES_PATH) + mFilename + ".tmp";
-                    std::fstream newFile(newFilePath.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
-                    newFile << " ";
-                    newFile.close();
-                    if (truncate(newFilePath.c_str(), currentSize + gap) == -1) {
-                        perror("Erreur au truncate2");
-                        throw std::runtime_error("Erreur de truncate2");
-                    }
-                    newFile.open(newFilePath.c_str());
+                    createFile(newFilePath, newSize);
+
+                    std::fstream newFile(newFilePath.c_str(), std::fstream::binary | std::fstream::out);
                     newFile.seekp(gap, newFile.beg);
 
                     char buffer[1024 * 1024];
                     while (!file.eof()) {
                         file.read(buffer, 1024 * 1024);
-                        newFile.write(buffer, 1024 * 1024);
+                        int n = file.gcount();
+                        newFile.write(buffer, n);
                     }
                     file.close();
                     newFile.close();
-                    if (remove((std::string(FILES_PATH) + mFilename).c_str()) == -1) {
+                    if (remove(absoluteFileName.c_str()) == -1) {
                         perror("Error of remove");
                         throw std::runtime_error("Error of remove");
                     }
-                    if (rename(newFilePath.c_str(), (std::string(FILES_PATH) + mFilename).c_str()) == -1) {
+                    if (rename(newFilePath.c_str(), absoluteFileName.c_str()) == -1) {
                         perror("Error of rename");
                         throw std::runtime_error("Error of rename");
                     }
-
                 } else {
-                    gap = (part - lastPart) * PARTITION_SIZE;
+                    long long newSize = (firstPart - part + 1) * PARTITION_SIZE;
                     std::cout << (std::string(FILES_PATH) + mFilename).c_str() << " " << PARTITION_SIZE << std::endl;
-                    if (truncate((std::string(FILES_PATH) + mFilename).c_str(), currentSize + gap) == -1) {
+                    if (truncate(absoluteFileName.c_str(), newSize) == -1) {
                         perror("Erreur au truncate3");
                         throw std::runtime_error("Erreur de truncate3");
                     }
@@ -461,3 +454,15 @@ void ClientFile::send(std::string& trackerIP) {
     AnswerQueue::get().sendToTracker(packet, trackerIP);
     unlock();
 }
+
+void ClientFile::createFile(std::string& filename, long long int size) {
+    std::fstream newFile(filename.c_str(), std::fstream::binary | std::fstream::out | std::fstream::trunc);
+    newFile << " ";
+    newFile.close();
+    std::cout << "create file " << filename << " " << size << std::endl;;
+    if (truncate(filename.c_str(), size) == -1) {
+        perror("Erreur au truncate1");
+        throw std::runtime_error("Erreur de truncate1");
+    }
+}
+

@@ -50,6 +50,8 @@ class ClientKnowledgeBase {
 
         void addClientFile(ClientFile cf);
 
+        ClientFile& getFile(std::string& name);
+
     protected:
 
     private:
