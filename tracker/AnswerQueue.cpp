@@ -58,7 +58,10 @@ void* answer_thread(void* arg) {
     while (State::get().isRunning()) {
         try {
             AnswerQueue::Answer a = AnswerQueue::get().getNextAnswer();
-            answerSocket.write(a.adresse, a.port, a.packet->toData(), a.packet->getSize());
+            char* data = a.packet->toData();
+            answerSocket.write(a.adresse, a.port, data, a.packet->getSize());
+            delete a.packet;
+            delete[] data;
         } catch(const std::logic_error& e) {
             // RIEN
         } catch(const std::exception& e) {

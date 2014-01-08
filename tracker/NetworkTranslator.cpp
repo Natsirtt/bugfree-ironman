@@ -34,7 +34,6 @@ IPacket* NetworkTranslator::readPacket(std::string& adresse, int* port, int time
     int* opcodePtr = (int*) data;
     int opcode = ntohl(*opcodePtr);
     IPacket* packet = NULL;
-    std::cout << "opcode " << opcode << std::endl;
 
     switch (opcode) {
     case RRQ:

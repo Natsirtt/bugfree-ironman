@@ -58,6 +58,7 @@ int FileAnswerPacket::getSize() {
 
 char* FileAnswerPacket::toData() {
     char* data = new char[getSize()];
+    memset(data, 0, getSize());
 
     int* opcode = (int*) data;
     *opcode = htonl(getOpcode());

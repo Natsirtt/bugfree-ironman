@@ -25,6 +25,7 @@ void* traitement(void* arg) {
             Operation op = OperationQueue::get().getNextOperation();
 
             op.getPacket()->exec(op.getAdresse());
+            delete op.getPacket();
         } catch(const std::logic_error& e) {
             // RIEN
         } catch(const std::exception& e) {

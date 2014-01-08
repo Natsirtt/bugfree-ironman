@@ -96,7 +96,6 @@ int main(int argc, char* argv[]) {
             if (packet == NULL) {
                 continue;
             }
-            std::cout << "reception" << std::endl;
 
             // On construit une opération
             Operation op(packet, adresse, port);

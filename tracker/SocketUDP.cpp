@@ -201,6 +201,7 @@ int SocketUDP::close() {
 }
 
 int SocketUDP::initSockAddr(std::string adresse, int port, struct sockaddr_in* in) {
+    memset(in, 0, sizeof(struct sockaddr_in));
     struct addrinfo hint;
     memset(&hint, 0, sizeof (struct addrinfo));
     hint.ai_family = AF_INET;
