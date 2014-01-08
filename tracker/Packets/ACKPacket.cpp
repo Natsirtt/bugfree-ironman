@@ -3,6 +3,7 @@
 #include "../ClientKnowledgeBase.hpp"
 #include "DataPacket.hpp"
 #include "../AnswerQueue.hpp"
+#include "../Defines.hpp"
 
 #include <iostream>
 #include <vector>
@@ -73,13 +74,14 @@ void ACKPacket::exec(std::string adresse) {
     std::cout << "exec ACKPacket" << std::endl;
     if (mNextBlock >= 0) {
         try {
-            std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
-            std::cout << "Recuperation d'un block " << block.size() << std::endl;
-            IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());
+            long long int filesize = ClientKnowledgeBase::get().getFileSize(mFileName);
+            if ((mPartition * PARTITION_SIZE + mNextBlock * BLOCK_SIZE) < filesize) {
+                std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
+                IPacket* packet = new DataPacket(mFileName, mPartition, mNextBlock, block.size(), block.data());
 
-            AnswerQueue::get().sendToClient(packet, adresse);
+                AnswerQueue::get().sendToClient(packet, adresse);
+            }
         } catch (...) {
-
         }
     }
 }
