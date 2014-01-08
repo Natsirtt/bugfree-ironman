@@ -1,5 +1,6 @@
 #include "KnowledgeBase.hpp"
 
+#include <iostream>
 #include <cstring>
 
 KnowledgeBase::KnowledgeBase() {}
@@ -57,6 +58,7 @@ Client& KnowledgeBase::getClient(std::string clientName) {
     try {
         Client c = mClientDesc.at(clientName);
     } catch (...) {
+        std::cout << "nouveau client " << clientName << std::endl;
         Client client(clientName);
         mClientDesc.insert(std::pair<std::string, Client>(clientName, client));
     }
@@ -87,7 +89,7 @@ std::vector<Association> KnowledgeBase::getClientsToSend(std::string& filename, 
     if ((f.getPartitionsNb() % connectedClient) != 0) {
         ratio++;
     }
-
+    std:: cout << "Nombre de partition " << f.getPartitionsNb() << std::endl;
     for (int i = 0; i < f.getPartitionsNb(); ++i) {
         if (f.getClients(i).size() == 0) {
             for (std::map<std::string, Client>::iterator it = mClientDesc.begin(); it != mClientDesc.end(); ++it) {

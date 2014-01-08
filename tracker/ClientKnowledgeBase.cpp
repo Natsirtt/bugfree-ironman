@@ -119,7 +119,9 @@ std::vector<char> ClientKnowledgeBase::getBlockData(std::string filename, int pa
 }
 
 void ClientKnowledgeBase::setBlockData(std::string filename, int partition, int block, std::vector<char> data) {
+    lock();
     mFiles[filename].setBlockData(partition, block, data);
+    unlock();
 }
 
 int ClientKnowledgeBase::getNextFreeBlockNumber(std::string filename, int partition) {

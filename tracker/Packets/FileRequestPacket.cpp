@@ -68,14 +68,18 @@ void FileRequestPacket::exec(std::string adresse) {
     try {
         std::vector<Association> assocs;
         int fileSize = 0;
-        std::cout << "exec FileRequest" << std::endl;
         if (mSend) {
+            std::cout << "exec fileRequest " << mFileName << " " << mFilesize << std::endl;
             long long int part_size = PARTITION_SIZE;
             File f(mFileName, mFilesize, part_size);
             KnowledgeBase::get().addFile(f);
             assocs = KnowledgeBase::get().getClientsToSend(mFileName, adresse);
             std::cout << assocs.size() << " associations" << std::endl;
+            for (unsigned int i = 0; i < assocs.size(); ++i) {
+                std::cout << assocs[i].partition << " " << assocs[i].ipClient << std::endl;
+            }
         } else {
+            std::cout << "exec fileRequest " << mFileName << std::endl;
             File& f = KnowledgeBase::get().getFile(mFileName);
             fileSize = f.getSize();
             assocs = f.getClientsToAsk(adresse);

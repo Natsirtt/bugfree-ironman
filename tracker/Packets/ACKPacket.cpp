@@ -4,6 +4,7 @@
 #include "DataPacket.hpp"
 #include "../AnswerQueue.hpp"
 
+#include <iostream>
 #include <vector>
 #include <cstring>
 #include <arpa/inet.h>
@@ -69,6 +70,7 @@ char* ACKPacket::toData() {
 }
 
 void ACKPacket::exec(std::string adresse) {
+    std::cout << "exec ACKPacket" << std::endl;
     if (mNextBlock >= 0) {
         std::vector<char> block = ClientKnowledgeBase::get().getBlockData(mFileName, mPartition, mNextBlock);
 

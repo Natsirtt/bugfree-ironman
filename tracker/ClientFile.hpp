@@ -61,7 +61,7 @@ private:
     long long mFileSize;
 
     long long computeFileOffset(int part, int block);
-    bool isNthBitSet(std::vector<char> bitmap, int n);
+    bool isNthBitSet(std::vector<char>& bitmap, int n);
     bool isNthBitSet(char c, int n);
     void setNthBit(std::vector<char> &bitmap, int n);
 };

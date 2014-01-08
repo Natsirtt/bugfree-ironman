@@ -9,7 +9,7 @@ File::File() : mName(""), mSize(0), mPartitionsNb(0), mPartitionSize(0) {
 }
 
 File::File(std::string& name, long long size, int partitionSize) : mName(name), mSize(size), mPartitionSize(partitionSize) {
-    mPartitionsNb = std::max(size / partitionSize, 1ll);
+    mPartitionsNb = size / partitionSize;
     if (size % partitionSize != 0) {
         mPartitionsNb++;
     }
