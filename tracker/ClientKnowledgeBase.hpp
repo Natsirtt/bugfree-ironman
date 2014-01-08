@@ -48,6 +48,8 @@ class ClientKnowledgeBase {
 
         void sendAlive(std::string& trackerIP);
 
+        void addClientFile(ClientFile cf);
+
     protected:
 
     private:

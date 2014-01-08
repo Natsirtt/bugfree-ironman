@@ -13,7 +13,7 @@
 #include "AnswerQueue.hpp"
 
 ClientFile::ClientFile() : mFilename(""), mFileSize(0) {
-
+    std::cout << "Nouveau fichier vide" << std::endl;
 }
 
 bool ClientFile::isCorrectFile() {
@@ -22,6 +22,7 @@ bool ClientFile::isCorrectFile() {
 
 ClientFile::ClientFile(std::string filename, long long int fileSize) : mFilename(filename), mFileSize(fileSize)
 {
+    std::cout << "ClientFile(std::string filename, long long int fileSize)" << std::endl;
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
         perror("Erreur init mutex");
@@ -46,7 +47,7 @@ ClientFile::ClientFile(std::string filename, long long int fileSize) : mFilename
 
 ClientFile::ClientFile(std::string filename)
 {
-
+    std::cout << "ClientFile(std::string filename)" << std::endl;
     if (pthread_mutex_init(&mMutex, NULL) != 0)
     {
         perror("Erreur init mutex");

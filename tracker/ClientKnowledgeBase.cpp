@@ -163,3 +163,7 @@ void ClientKnowledgeBase::sendAlive(std::string& trackerIP) {
     IPacket* packet = new AlivePacket();
     AnswerQueue::get().sendToTracker(packet, trackerIP);
 }
+
+void ClientKnowledgeBase::addClientFile(ClientFile cf) {
+    mFiles[cf.getName()] = cf;
+}

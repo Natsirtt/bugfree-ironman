@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
-WRQPacket::WRQPacket(std::string filename, int partition) : mFileName(filename), mPartition(partition) {
+WRQPacket::WRQPacket(std::string filename, long long int filesize, int partition) : mFileName(filename), mFileSize(filesize), mPartition(partition) {
 }
 
 WRQPacket::WRQPacket(char* data, int size) {
@@ -21,7 +21,10 @@ WRQPacket::WRQPacket(char* data, int size) {
     char* filename = data + sizeof(getOpcode());
     mFileName = std::string(filename);
 
-    int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    long long int* filesize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    mFileSize = *filesize; // Pas de ntoh pour les long long int
+
+    int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(long long int));
     mPartition = ntohl(*partNb);
 
 }
@@ -35,7 +38,7 @@ unsigned int WRQPacket::getOpcode() {
 }
 
 int WRQPacket::getSize() {
-    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(int);
+    return sizeof(int) + MAX_FILENAME_SIZE + sizeof(long long int) + sizeof(int);
 }
 
 char* WRQPacket::toData() {
@@ -48,7 +51,10 @@ char* WRQPacket::toData() {
     strncpy(filename, mFileName.c_str(), MAX_FILENAME_SIZE - 1);
     filename[MAX_FILENAME_SIZE - 1] = '\0'; // Protection
 
-    int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    long long int* filesize = (long long int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE);
+    *filesize = mFileSize; // Pas de ntoh pour les long long int
+
+    int* partNb = (int*) (data + sizeof(getOpcode()) + MAX_FILENAME_SIZE + sizeof(long long int));
     *partNb = htonl(mPartition);
 
     return data;
@@ -56,6 +62,8 @@ char* WRQPacket::toData() {
 
 void WRQPacket::exec(std::string adresse) {
     std::cout << "exec WRQPacket" << std::endl;
+
+    ClientKnowledgeBase::get().addClientFile(ClientFile(mFileName, mFileSize));
     IPacket* packet = new ACKPacket(mFileName, mPartition, -1, 0);
 
     AnswerQueue::get().sendToClient(packet, adresse);

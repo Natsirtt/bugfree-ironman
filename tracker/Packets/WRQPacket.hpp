@@ -5,12 +5,12 @@
 
 /**
  * Organisation d'un WRQ :
- * -----------------------------
- * |opcode|filename|partitionNb|
- * -----------------------------
- * | 4    | 100    | 4         |tailles en octets
- * -----------------------------
- * Taille d'un WRQ : 108 octets
+ * --------------------------------------
+ * |opcode|filename|filesize|partitionNb|
+ * --------------------------------------
+ * | 4    | 100    | 8      | 4         |tailles en octets
+ * --------------------------------------
+ * Taille d'un WRQ : 116 octets
  */
 class WRQPacket : public IPacket {
     public:
@@ -19,7 +19,7 @@ class WRQPacket : public IPacket {
         /**
          * Construit un paquet à partir de ces paramétres.
          */
-        WRQPacket(std::string filename, int partition);
+        WRQPacket(std::string filename, long long int filesize, int partition);
 
         /**
          * Reconstruit un paquet à partir des données au format réseau.
@@ -58,6 +58,7 @@ class WRQPacket : public IPacket {
 
     private:
         std::string mFileName;
+        long long int mFileSize;
         int mPartition;
 };
 
